@@ -99,6 +99,10 @@ employee-management-system
 │       │   └── App.css
 │       ├── App.jsx
 │       └── main.jsx
+└── postman
+│
+└── screenshots
+│
 └── server
     ├── config
     │   └── db.js
