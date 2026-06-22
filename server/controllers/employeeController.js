@@ -36,7 +36,66 @@ const getEmployeeById = (req, res) => {
   });
 };
 
+const createEmployee = (req, res) => {
+  const { full_name, email, department, designation, date_of_joining, status } =
+    req.body;
+
+  if (
+    !full_name ||
+    !email ||
+    !department ||
+    !designation ||
+    !date_of_joining ||
+    !status
+  ) {
+    return res.status(400).json({
+      message: "All fields are required",
+    });
+  }
+
+  const emailPattern = /\S+@\S+\.\S+/;
+
+  if (!emailPattern.test(email)) {
+    return res.status(400).json({
+      message: "Invalid email format",
+    });
+  }
+
+  const today = new Date();
+  const joiningDate = new Date(date_of_joining);
+
+  if (joiningDate > today) {
+    return res.status(400).json({
+      message: "Date of joining cannot be a future date",
+    });
+  }
+
+  const sql = `
+    INSERT INTO employees
+    (full_name, email, department, designation, date_of_joining, status)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    sql,
+    [full_name, email, department, designation, date_of_joining, status],
+    (error, result) => {
+      if (error) {
+        return res.status(500).json({
+          message: "Failed to create employee",
+        });
+      }
+
+      res.status(201).json({
+        message: "Employee created successfully",
+        employeeId: result.insertId,
+      });
+    },
+  );
+};
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
+  createEmployee,
 };
