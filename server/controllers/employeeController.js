@@ -159,9 +159,34 @@ const updateEmployee = (req, res) => {
   );
 };
 
+const deleteEmployee = (req, res) => {
+  const { id } = req.params;
+
+  const sql = "DELETE FROM employees WHERE id = ?";
+
+  db.query(sql, [id], (error, result) => {
+    if (error) {
+      return res.status(500).json({
+        message: "Failed to delete employee",
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        message: "Employee not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Employee deleted successfully",
+    });
+  });
+};
+
 module.exports = {
   getAllEmployees,
   getEmployeeById,
   createEmployee,
   updateEmployee,
+  deleteEmployee,
 };
