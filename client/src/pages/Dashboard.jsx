@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardCards from "../components/DashboardCards";
-
+import { useAuth } from "../context/AuthContext";
 import EmployeeTable from "../components/EmployeeTable";
 import EmployeeForm from "../components/EmployeeForm";
 import EmployeeDetails from "../components/EmployeeDetails";
@@ -13,6 +13,7 @@ import {
 } from "../services/api";
 
 const Dashboard = () => {
+  const { token } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -33,7 +34,7 @@ const Dashboard = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const response = await getEmployees();
+      const response = await getEmployees(token);
       setEmployees(response.data);
       setError("");
     } catch (error) {
@@ -45,15 +46,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchEmployees();
-  }, []);
+  }, [token]);
 
   const handleSubmit = async (employeeData) => {
     try {
       if (editingEmployee) {
-        await updateEmployee(editingEmployee.id, employeeData);
+        await updateEmployee(editingEmployee.id, employeeData, token);
         setEditingEmployee(null);
       } else {
-        await addEmployee(employeeData);
+        await addEmployee(employeeData, token);
       }
 
       fetchEmployees();
@@ -74,7 +75,7 @@ const Dashboard = () => {
     if (!confirmDelete) return;
 
     try {
-      await deleteEmployee(id);
+      await deleteEmployee(id, token);
       fetchEmployees();
     } catch (error) {
       setError("Failed to delete employee.");
