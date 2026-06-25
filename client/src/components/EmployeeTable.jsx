@@ -6,6 +6,7 @@ const EmployeeTable = ({
   currentPage,
   totalPages,
   setCurrentPage,
+  isAdmin,
 }) => {
   return (
     <>
@@ -19,14 +20,14 @@ const EmployeeTable = ({
               <th>Designation</th>
               <th>Status</th>
               <th>Date of Joining</th>
-              <th>Actions</th>
+              {isAdmin && <th>Actions</th>}
             </tr>
           </thead>
 
           <tbody>
             {employees.length === 0 ? (
               <tr>
-                <td colSpan="7" className="text-center">
+                <td colSpan={isAdmin ? 7 : 6} className="text-center">
                   No employees found
                 </td>
               </tr>
@@ -41,21 +42,23 @@ const EmployeeTable = ({
                     <span className="badge bg-primary">{employee.status}</span>
                   </td>
                   <td>{employee.date_of_joining?.slice(0, 10)}</td>
-                  <td onClick={(event) => event.stopPropagation()}>
-                    <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => onEdit(employee)}
-                    >
-                      Edit
-                    </button>
+                  {isAdmin && (
+                    <td onClick={(event) => event.stopPropagation()}>
+                      <button
+                        className="btn btn-sm btn-warning me-2"
+                        onClick={() => onEdit(employee)}
+                      >
+                        Edit
+                      </button>
 
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => onDelete(employee.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => onDelete(employee.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

@@ -13,7 +13,9 @@ import {
 } from "../services/api";
 
 const Dashboard = () => {
-  const { token } = useAuth();
+  const { token, user, logout } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [employees, setEmployees] = useState([]);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -136,24 +138,32 @@ const Dashboard = () => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2 className="mb-1">Employee Management System</h2>
+            <p className="mb-0 text-muted">
+              Logged in as: <strong>{user?.username}</strong> ({user?.role})
+            </p>
           </div>
+          <button className="btn btn-outline-danger" onClick={logout}>
+            Logout
+          </button>
         </div>
 
         {error && <div className="alert alert-danger">{error}</div>}
 
         <DashboardCards employees={employees} />
 
-        <div className="mb-3">
-          <button
-            className="btn btn-success"
-            onClick={() => {
-              setShowForm(true);
-              setEditingEmployee(null);
-            }}
-          >
-            Add Employee
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="mb-3">
+            <button
+              className="btn btn-success"
+              onClick={() => {
+                setShowForm(true);
+                setEditingEmployee(null);
+              }}
+            >
+              Add Employee
+            </button>
+          </div>
+        )}
 
         {showForm && (
           <EmployeeForm
@@ -236,6 +246,7 @@ const Dashboard = () => {
             currentPage={currentPage}
             totalPages={totalPages}
             setCurrentPage={setCurrentPage}
+            isAdmin={isAdmin}
           />
         )}
 
