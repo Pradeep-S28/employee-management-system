@@ -4,6 +4,7 @@ require("dotenv").config();
 require("./config/db");
 
 const employeeRoutes = require("./routes/employeeRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
   res.send("Employee Management API is running");
 });
 
+app.use("/auth", authRoutes);
 app.use("/employees", employeeRoutes);
 
 const PORT = process.env.PORT || 5000;
