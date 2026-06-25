@@ -9,10 +9,13 @@ const {
   deleteEmployee,
 } = require("../controllers/employeeController");
 
-router.get("/", getAllEmployees);
-router.post("/", createEmployee);
-router.get("/:id", getEmployeeById);
-router.put("/:id", updateEmployee);
-router.delete("/:id", deleteEmployee);
+const { verifyToken, allowAdminOnly } = require("../middleware/authMiddleware");
+
+router.get("/", verifyToken, getAllEmployees);
+router.get("/:id", verifyToken, getEmployeeById);
+
+router.post("/", verifyToken, allowAdminOnly, createEmployee);
+router.put("/:id", verifyToken, allowAdminOnly, updateEmployee);
+router.delete("/:id", verifyToken, allowAdminOnly, deleteEmployee);
 
 module.exports = router;
