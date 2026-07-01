@@ -187,7 +187,10 @@ employee-management-system
 │   │   │   ├── DashboardCards.jsx
 │   │   │   ├── EmployeeDetails.jsx
 │   │   │   ├── EmployeeForm.jsx
-│   │   │   └── EmployeeTable.jsx
+│   │   │   ├── EmployeeTable.jsx
+│   │   │   ├── LeaveForm.jsx
+│   │   │   ├── LeaveTable.jsx
+│   │   │   └── ReportCharts.jsx
 │   │   ├── context
 │   │   │   └── AuthContext.jsx
 │   │   ├── pages
@@ -207,12 +210,14 @@ employee-management-system
 │   │   └── db.js
 │   ├── controllers
 │   │   ├── authController.js
-│   │   └── employeeController.js
+│   │   ├── employeeController.js
+│   │   └── leaveController.js
 │   ├── middleware
 │   │   └── authMiddleware.js
 │   ├── routes
 │   │   ├── authRoutes.js
-│   │   └── employeeRoutes.js
+│   │   ├── employeeRoutes.js
+│   │   └── leaveRoutes.js
 │   ├── database.sql
 │   ├── server.js
 │   ├── package.json
@@ -222,7 +227,10 @@ employee-management-system
 │   └── Employee Management System.postman_collection.json
 │
 ├── screenshots
+│   ├── adminview_leave_request.png
+│   ├── charts.png
 │   ├── Dashboard&table.png
+│   ├── employeeview_leave_request.png
 │   ├── form.png
 │   ├── login_admin_view.png
 │   ├── login_employee_view.png
@@ -232,3 +240,22 @@ employee-management-system
 │
 └── README.md
 ```
+
+### Leave Management Module
+
+- Employees can submit leave requests with leave type, start date, end date, and reason.
+- Mandatory field validation is added for the leave request form.
+- End date must be greater than or equal to start date.
+- Employees can view only their own leave request status.
+- Admin can view all leave requests.
+- Admin can filter leave requests by status and leave type.
+- Admin can approve or reject pending leave requests with confirmation.
+
+### Visual Reporting Dashboard
+
+- Employees by Department chart.
+- Leave Requests by Status chart.
+- Leave Requests by Type chart.
+- Charts are built using Recharts.
+- Dashboard charts update using live API data.
+- Loading and empty states are handled for reports and leave data.
