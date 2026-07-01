@@ -29,3 +29,14 @@ export const updateEmployee = (id, employee, token) => {
 export const deleteEmployee = (id, token) => {
   return axios.delete(`${API_URL}/${id}`, getAuthHeader(token));
 };
+
+// task 5
+const LEAVE_API_URL = "http://localhost:5001/leaves";
+
+export const submitLeaveRequest = (leaveData, token) => {
+  return axios.post(LEAVE_API_URL, leaveData, getAuthHeader(token));
+};
+
+export const getLeaveRequests = (token) => {
+  return axios.get(LEAVE_API_URL, getAuthHeader(token));
+};

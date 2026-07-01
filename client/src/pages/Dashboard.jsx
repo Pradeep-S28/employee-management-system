@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+//task 5
+import LeaveForm from "../components/LeaveForm";
+import LeaveTable from "../components/LeaveTable";
+import { getLeaveRequests } from "../services/api";
+//task 5 end
 import DashboardCards from "../components/DashboardCards";
 import { useAuth } from "../context/AuthContext";
 import EmployeeTable from "../components/EmployeeTable";
@@ -33,6 +38,12 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  //task 5
+  const [leaves, setLeaves] = useState([]);
+  const [leaveLoading, setLeaveLoading] = useState(false);
+  const [leaveError, setLeaveError] = useState("");
+  //task 5 end
+
   const fetchEmployees = async () => {
     try {
       setLoading(true);
@@ -46,8 +57,22 @@ const Dashboard = () => {
     }
   };
 
+  const fetchLeaves = async () => {
+    try {
+      setLeaveLoading(true);
+      const response = await getLeaveRequests(token);
+      setLeaves(response.data);
+      setLeaveError("");
+    } catch (error) {
+      setLeaveError("Unable to fetch leave requests.");
+    } finally {
+      setLeaveLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchEmployees();
+    fetchLeaves();
   }, [token]);
 
   const handleSubmit = async (employeeData) => {
@@ -150,6 +175,18 @@ const Dashboard = () => {
         {error && <div className="alert alert-danger">{error}</div>}
 
         <DashboardCards employees={employees} />
+
+        {!isAdmin && (
+          <div className="mb-4">
+            {leaveError && (
+              <div className="alert alert-danger">{leaveError}</div>
+            )}
+
+            <LeaveForm token={token} onLeaveSubmitted={fetchLeaves} />
+
+            <LeaveTable leaves={leaves} loading={leaveLoading} />
+          </div>
+        )}
 
         {isAdmin && (
           <div className="mb-3">
