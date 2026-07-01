@@ -40,3 +40,12 @@ export const submitLeaveRequest = (leaveData, token) => {
 export const getLeaveRequests = (token) => {
   return axios.get(LEAVE_API_URL, getAuthHeader(token));
 };
+
+// task 5 admin
+export const updateLeaveStatus = (id, status, token) => {
+  return axios.put(
+    `${LEAVE_API_URL}/${id}/status`,
+    { status },
+    getAuthHeader(token),
+  );
+};

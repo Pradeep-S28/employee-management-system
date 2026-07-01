@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 //task 5
 import LeaveForm from "../components/LeaveForm";
 import LeaveTable from "../components/LeaveTable";
-import { getLeaveRequests } from "../services/api";
+import { getLeaveRequests, updateLeaveStatus } from "../services/api";
 //task 5 end
 import DashboardCards from "../components/DashboardCards";
 import { useAuth } from "../context/AuthContext";
@@ -42,6 +42,10 @@ const Dashboard = () => {
   const [leaves, setLeaves] = useState([]);
   const [leaveLoading, setLeaveLoading] = useState(false);
   const [leaveError, setLeaveError] = useState("");
+
+  //admin
+  const [leaveStatusFilter, setLeaveStatusFilter] = useState("");
+  const [leaveTypeFilter, setLeaveTypeFilter] = useState("");
   //task 5 end
 
   const fetchEmployees = async () => {
@@ -67,6 +71,15 @@ const Dashboard = () => {
       setLeaveError("Unable to fetch leave requests.");
     } finally {
       setLeaveLoading(false);
+    }
+  };
+
+  const handleLeaveStatusUpdate = async (leaveId, status) => {
+    try {
+      await updateLeaveStatus(leaveId, status, token);
+      fetchLeaves();
+    } catch (error) {
+      setLeaveError("Failed to update leave status.");
     }
   };
 
@@ -153,6 +166,20 @@ const Dashboard = () => {
     startIndex + recordsPerPage,
   );
 
+  const filteredLeaves = useMemo(() => {
+    let data = [...leaves];
+
+    if (leaveStatusFilter) {
+      data = data.filter((leave) => leave.status === leaveStatusFilter);
+    }
+
+    if (leaveTypeFilter) {
+      data = data.filter((leave) => leave.leave_type === leaveTypeFilter);
+    }
+
+    return data;
+  }, [leaves, leaveStatusFilter, leaveTypeFilter]);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchText, statusFilter, departmentFilter, sortOrder]);
@@ -185,6 +212,25 @@ const Dashboard = () => {
             <LeaveForm token={token} onLeaveSubmitted={fetchLeaves} />
 
             <LeaveTable leaves={leaves} loading={leaveLoading} />
+          </div>
+        )}
+
+        {isAdmin && (
+          <div className="mb-4">
+            {leaveError && (
+              <div className="alert alert-danger">{leaveError}</div>
+            )}
+
+            <LeaveTable
+              leaves={filteredLeaves}
+              loading={leaveLoading}
+              isAdmin={true}
+              onStatusUpdate={handleLeaveStatusUpdate}
+              statusFilter={leaveStatusFilter}
+              setStatusFilter={setLeaveStatusFilter}
+              typeFilter={leaveTypeFilter}
+              setTypeFilter={setLeaveTypeFilter}
+            />
           </div>
         )}
 
