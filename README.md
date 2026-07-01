@@ -151,29 +151,41 @@ The employee form includes:
 
 ### Login Page
 
-![Login Page](./screenshots/login_form.png)
+<img src="./screenshots/login_form.png" alt="Login Page" width="600" />
 
 ### Admin Dashboard View
 
-![Admin Dashboard](./screenshots/login_admin_view.png)
+<img src="./screenshots/login_admin_view.png" alt="Admin Dashboard" width="600" />
 
 ### Employee Dashboard View
 
-![Employee Dashboard](./screenshots/login_employee_view.png)
+<img src="./screenshots/login_employee_view.png" alt="Employee Dashboard" width="600" />
 
 ### Dashboard and Employee Table
 
-![Dashboard Table](./screenshots/Dashboard&table.png)
+<img src="./screenshots/Dashboard&table.png" alt="Dashboard Table" width="600" />
 
 ### Employee Form
 
-![Employee Form](./screenshots/form.png)
+<img src="./screenshots/form.png" alt="Employee Form" width="600" />
+
+### Employee Leave Request View
+
+<img src="./screenshots/employeeview_leave_request.png" alt="Employee Leave Request View" width="600" />
+
+### Admin Leave Approval View
+
+<img src="./screenshots/adminview_leave_request.png" alt="Admin Leave Approval View" width="600" />
+
+### Reporting Dashboard Charts
+
+<img src="./screenshots/charts.png" alt="Reporting Dashboard Charts" width="600" />
 
 ### Mobile Responsive View
 
-![Mobile Responsive 1](./screenshots/mobile%20responsive%201.png)
+<img src="./screenshots/mobile%20responsive%201.png" alt="Mobile Responsive 1" width="350" />
 
-![Mobile Responsive 2](./screenshots/mobile%20responsive%202.png)
+<img src="./screenshots/mobile%20responsive%202.png" alt="Mobile Responsive 2" width="350" />
 
 ---
 
