@@ -49,3 +49,9 @@ export const updateLeaveStatus = (id, status, token) => {
     getAuthHeader(token),
   );
 };
+
+//charts
+
+export const getLeaveSummary = (token) => {
+  return axios.get(`${LEAVE_API_URL}/summary`, getAuthHeader(token));
+};

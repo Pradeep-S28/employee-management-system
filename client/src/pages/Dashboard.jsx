@@ -2,13 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 //task 5
 import LeaveForm from "../components/LeaveForm";
 import LeaveTable from "../components/LeaveTable";
-import { getLeaveRequests, updateLeaveStatus } from "../services/api";
+import {
+  getLeaveRequests,
+  updateLeaveStatus,
+  getLeaveSummary,
+} from "../services/api";
 //task 5 end
 import DashboardCards from "../components/DashboardCards";
 import { useAuth } from "../context/AuthContext";
 import EmployeeTable from "../components/EmployeeTable";
 import EmployeeForm from "../components/EmployeeForm";
 import EmployeeDetails from "../components/EmployeeDetails";
+import ReportCharts from "../components/ReportCharts";
 
 import {
   getEmployees,
@@ -48,6 +53,12 @@ const Dashboard = () => {
   const [leaveTypeFilter, setLeaveTypeFilter] = useState("");
   //task 5 end
 
+  const [leaveSummary, setLeaveSummary] = useState({
+    byStatus: [],
+    byType: [],
+  });
+  const [reportLoading, setReportLoading] = useState(false);
+
   const fetchEmployees = async () => {
     try {
       setLoading(true);
@@ -74,10 +85,26 @@ const Dashboard = () => {
     }
   };
 
+  const fetchLeaveSummary = async () => {
+    try {
+      setReportLoading(true);
+      const response = await getLeaveSummary(token);
+      setLeaveSummary(response.data);
+    } catch (error) {
+      setLeaveSummary({
+        byStatus: [],
+        byType: [],
+      });
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   const handleLeaveStatusUpdate = async (leaveId, status) => {
     try {
       await updateLeaveStatus(leaveId, status, token);
       fetchLeaves();
+      fetchLeaveSummary();
     } catch (error) {
       setLeaveError("Failed to update leave status.");
     }
@@ -86,6 +113,7 @@ const Dashboard = () => {
   useEffect(() => {
     fetchEmployees();
     fetchLeaves();
+    fetchLeaveSummary();
   }, [token]);
 
   const handleSubmit = async (employeeData) => {
@@ -202,6 +230,12 @@ const Dashboard = () => {
         {error && <div className="alert alert-danger">{error}</div>}
 
         <DashboardCards employees={employees} />
+
+        <ReportCharts
+          employees={employees}
+          leaveSummary={leaveSummary}
+          loading={reportLoading}
+        />
 
         {!isAdmin && (
           <div className="mb-4">
