@@ -5,6 +5,7 @@ require("./config/db");
 
 const employeeRoutes = require("./routes/employeeRoutes");
 const authRoutes = require("./routes/authRoutes");
+const leaveRoutes = require("./routes/leaveRoutes");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
   res.send("Employee Management API is running");
 });
 
+app.use("/leaves", leaveRoutes);
 app.use("/auth", authRoutes);
 app.use("/employees", employeeRoutes);
 

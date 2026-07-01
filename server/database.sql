@@ -21,3 +21,29 @@ VALUES
 ('Priya Sharma', 'priya@example.com', 'Finance', 'Accountant', '2021-05-20', 'On Leave'),
 ('Rohit Verma', 'rohit@example.com', 'Marketing', 'Marketing Executive', '2024-02-01', 'Inactive'),
 ('Sneha Iyer', 'sneha@example.com', 'Engineering', 'Frontend Developer', '2023-11-12', 'Active');
+
+
+--task 5 sql code below
+
+-- task 5 sql code below
+
+-- Link login users with employee records for leave module
+ALTER TABLE users
+ADD COLUMN employee_id INT NULL;
+
+-- Leave requests table for Task 5
+CREATE TABLE IF NOT EXISTS leave_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  leave_type ENUM('Sick', 'Casual', 'Paid') NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  reason TEXT NOT NULL,
+  status ENUM('Pending', 'Approved', 'Rejected') NOT NULL DEFAULT 'Pending',
+  requested_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_leave_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE
+);

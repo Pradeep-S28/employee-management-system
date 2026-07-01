@@ -41,6 +41,7 @@ const loginUser = (req, res) => {
         id: user.id,
         username: user.username,
         role: user.role,
+        employee_id: user.employee_id,
       },
       process.env.JWT_SECRET,
       {
@@ -55,6 +56,7 @@ const loginUser = (req, res) => {
         id: user.id,
         username: user.username,
         role: user.role,
+        employee_id: user.employee_id,
       },
     });
   });
