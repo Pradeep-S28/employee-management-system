@@ -25,8 +25,6 @@ VALUES
 
 --task 5 sql code below
 
--- task 5 sql code below
-
 -- Link login users with employee records for leave module
 ALTER TABLE users
 ADD COLUMN employee_id INT NULL;
