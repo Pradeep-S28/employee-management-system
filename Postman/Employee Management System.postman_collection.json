@@ -84,7 +84,7 @@
       "response": []
     },
     {
-      "name": "New Request",
+      "name": "Delete Employee",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -106,6 +106,109 @@
             }
           ]
         }
+      },
+      "response": []
+    },
+    {
+      "name": "login request",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJlbXBsb3llZSIsInJvbGUiOiJlbXBsb3llZSIsImlhdCI6MTc4MjM3NjE1NSwiZXhwIjoxNzgyMzc5NzU1fQ.VFsAD0XnI8LMp9CYWeKxNIeIl3EqabOLTGVoljrNkGE",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"employee\",\n  \"password\": \"employee123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5001/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5001",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "leave request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get employee leave requests",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "approve leave request",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImVtcGxveWVlX2lkIjpudWxsLCJpYXQiOjE3ODI4OTQyNjEsImV4cCI6MTc4Mjg5Nzg2MX0.7CZ-cw5jel-XHgfki01OuSrFL0qGrM7w9p7sW3euzj4",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Approved\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5001/leaves/3/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5001",
+          "path": [
+            "leaves",
+            "3",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get leave summary",
+      "request": {
+        "method": "GET",
+        "header": []
       },
       "response": []
     }
