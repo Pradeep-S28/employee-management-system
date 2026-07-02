@@ -6,6 +6,7 @@ require("./config/db");
 const employeeRoutes = require("./routes/employeeRoutes");
 const authRoutes = require("./routes/authRoutes");
 const leaveRoutes = require("./routes/leaveRoutes");
+const performanceRoutes = require("./routes/performanceRoutes");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 app.use("/leaves", leaveRoutes);
 app.use("/auth", authRoutes);
 app.use("/employees", employeeRoutes);
+app.use("/performance", performanceRoutes);
 
 const PORT = process.env.PORT || 5000;
 

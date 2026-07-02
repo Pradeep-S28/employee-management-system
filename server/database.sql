@@ -45,3 +45,29 @@ CREATE TABLE IF NOT EXISTS leave_requests (
   REFERENCES employees(id)
   ON DELETE CASCADE
 );
+
+-- Task 6: Performance Management & Appraisal Module
+
+CREATE TABLE IF NOT EXISTS performance_reviews (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  review_period VARCHAR(50) NOT NULL,
+  self_rating INT NOT NULL,
+  self_comments TEXT NOT NULL,
+  manager_rating INT NULL,
+  manager_feedback TEXT NULL,
+  status ENUM('Draft', 'Submitted', 'Reviewed') NOT NULL DEFAULT 'Submitted',
+  reviewed_on TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_performance_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT chk_self_rating
+  CHECK (self_rating BETWEEN 1 AND 5),
+
+  CONSTRAINT chk_manager_rating
+  CHECK (manager_rating IS NULL OR manager_rating BETWEEN 1 AND 5)
+);
