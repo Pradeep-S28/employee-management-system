@@ -1,13 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-//task 5
+
+// task 5
 import LeaveForm from "../components/LeaveForm";
 import LeaveTable from "../components/LeaveTable";
+
+// task 6
+import PerformanceForm from "../components/PerformanceForm";
+import PerformanceTable from "../components/PerformanceTable";
+import PerformanceCharts from "../components/PerformanceCharts";
+
 import {
   getLeaveRequests,
   updateLeaveStatus,
   getLeaveSummary,
+  getPerformanceReviews,
+  getPerformanceSummary,
 } from "../services/api";
-//task 5 end
+
 import DashboardCards from "../components/DashboardCards";
 import { useAuth } from "../context/AuthContext";
 import EmployeeTable from "../components/EmployeeTable";
@@ -26,6 +35,8 @@ const Dashboard = () => {
   const { token, user, logout } = useAuth();
   const isAdmin = user?.role === "admin";
 
+  const [activeSection, setActiveSection] = useState("overview");
+
   const [employees, setEmployees] = useState([]);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -43,21 +54,29 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  //task 5
+  // task 5 leave
   const [leaves, setLeaves] = useState([]);
   const [leaveLoading, setLeaveLoading] = useState(false);
   const [leaveError, setLeaveError] = useState("");
 
-  //admin
   const [leaveStatusFilter, setLeaveStatusFilter] = useState("");
   const [leaveTypeFilter, setLeaveTypeFilter] = useState("");
-  //task 5 end
 
   const [leaveSummary, setLeaveSummary] = useState({
     byStatus: [],
     byType: [],
   });
   const [reportLoading, setReportLoading] = useState(false);
+
+  // task 6 performance
+  const [performanceReviews, setPerformanceReviews] = useState([]);
+  const [performanceSummary, setPerformanceSummary] = useState({
+    avgRatingByDepartment: [],
+    ratingDistribution: [],
+    reviewTrend: [],
+  });
+  const [performanceLoading, setPerformanceLoading] = useState(false);
+  const [performanceError, setPerformanceError] = useState("");
 
   const fetchEmployees = async () => {
     try {
@@ -100,6 +119,34 @@ const Dashboard = () => {
     }
   };
 
+  const fetchPerformanceReviews = async () => {
+    try {
+      setPerformanceLoading(true);
+      const response = await getPerformanceReviews(token);
+      setPerformanceReviews(response.data);
+      setPerformanceError("");
+    } catch (error) {
+      setPerformanceError("Unable to fetch performance reviews.");
+    } finally {
+      setPerformanceLoading(false);
+    }
+  };
+
+  const fetchPerformanceSummary = async () => {
+    if (!isAdmin) return;
+
+    try {
+      const response = await getPerformanceSummary(token);
+      setPerformanceSummary(response.data);
+    } catch (error) {
+      setPerformanceSummary({
+        avgRatingByDepartment: [],
+        ratingDistribution: [],
+        reviewTrend: [],
+      });
+    }
+  };
+
   const handleLeaveStatusUpdate = async (leaveId, status) => {
     try {
       await updateLeaveStatus(leaveId, status, token);
@@ -110,11 +157,21 @@ const Dashboard = () => {
     }
   };
 
+  const handlePerformanceRefresh = () => {
+    fetchPerformanceReviews();
+    fetchPerformanceSummary();
+  };
+
   useEffect(() => {
     fetchEmployees();
     fetchLeaves();
     fetchLeaveSummary();
-  }, [token]);
+    fetchPerformanceReviews();
+
+    if (user?.role === "admin") {
+      fetchPerformanceSummary();
+    }
+  }, [token, user?.role]);
 
   const handleSubmit = async (employeeData) => {
     try {
@@ -222,155 +279,260 @@ const Dashboard = () => {
               Logged in as: <strong>{user?.username}</strong> ({user?.role})
             </p>
           </div>
+
           <button className="btn btn-outline-danger" onClick={logout}>
             Logout
           </button>
         </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
-
-        <DashboardCards employees={employees} />
-
-        <ReportCharts
-          employees={employees}
-          leaveSummary={leaveSummary}
-          loading={reportLoading}
-        />
-
-        {!isAdmin && (
-          <div className="mb-4">
-            {leaveError && (
-              <div className="alert alert-danger">{leaveError}</div>
-            )}
-
-            <LeaveForm token={token} onLeaveSubmitted={fetchLeaves} />
-
-            <LeaveTable leaves={leaves} loading={leaveLoading} />
-          </div>
-        )}
-
-        {isAdmin && (
-          <div className="mb-4">
-            {leaveError && (
-              <div className="alert alert-danger">{leaveError}</div>
-            )}
-
-            <LeaveTable
-              leaves={filteredLeaves}
-              loading={leaveLoading}
-              isAdmin={true}
-              onStatusUpdate={handleLeaveStatusUpdate}
-              statusFilter={leaveStatusFilter}
-              setStatusFilter={setLeaveStatusFilter}
-              typeFilter={leaveTypeFilter}
-              setTypeFilter={setLeaveTypeFilter}
-            />
-          </div>
-        )}
-
-        {isAdmin && (
-          <div className="mb-3">
-            <button
-              className="btn btn-success"
-              onClick={() => {
-                setShowForm(true);
-                setEditingEmployee(null);
-              }}
-            >
-              Add Employee
-            </button>
-          </div>
-        )}
-
-        {showForm && (
-          <EmployeeForm
-            onSubmit={handleSubmit}
-            editingEmployee={editingEmployee}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingEmployee(null);
-            }}
-          />
-        )}
-
-        <div className="card p-3 mb-4">
-          <div className="row g-3">
-            <div className="col-md-3">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search name or department"
-                value={searchText}
-                onChange={(event) => setSearchText(event.target.value)}
-              />
-            </div>
-
-            <div className="col-md-3">
-              <select
-                className="form-select"
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="d-flex flex-wrap gap-2">
+              <button
+                className={`btn ${
+                  activeSection === "overview"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveSection("overview")}
               >
-                <option value="">All Status</option>
-                <option value="Active">Active</option>
-                <option value="On Leave">On Leave</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
+                Overview
+              </button>
 
-            <div className="col-md-3">
-              <select
-                className="form-select"
-                value={departmentFilter}
-                onChange={(event) => setDepartmentFilter(event.target.value)}
-              >
-                <option value="">All Departments</option>
-                {departments.map((department) => (
-                  <option key={department} value={department}>
-                    {department}
-                  </option>
-                ))}
-              </select>
-            </div>
+              {isAdmin && (
+                <button
+                  className={`btn ${
+                    activeSection === "employees"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setActiveSection("employees")}
+                >
+                  Employees
+                </button>
+              )}
 
-            <div className="col-md-3">
-              <select
-                className="form-select"
-                value={sortOrder}
-                onChange={(event) => setSortOrder(event.target.value)}
+              <button
+                className={`btn ${
+                  activeSection === "leaves"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveSection("leaves")}
               >
-                <option value="newest">Newest Joining First</option>
-                <option value="oldest">Oldest Joining First</option>
-              </select>
+                Leave Management
+              </button>
+
+              <button
+                className={`btn ${
+                  activeSection === "performance"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveSection("performance")}
+              >
+                Performance
+              </button>
             </div>
           </div>
         </div>
 
-        {loading ? (
-          <div className="text-center my-5">
-            <div className="spinner-border text-primary"></div>
-            <p className="mt-2">Loading employees...</p>
-          </div>
-        ) : (
-          <EmployeeTable
-            employees={paginatedEmployees}
-            onEdit={(employee) => {
-              setEditingEmployee(employee);
-              setShowForm(true);
-            }}
-            onDelete={handleDelete}
-            onView={setSelectedEmployee}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            setCurrentPage={setCurrentPage}
-            isAdmin={isAdmin}
-          />
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        {activeSection === "overview" && (
+          <>
+            <DashboardCards employees={employees} />
+
+            {isAdmin && (
+              <ReportCharts
+                employees={employees}
+                leaveSummary={leaveSummary}
+                loading={reportLoading}
+              />
+            )}
+
+            {!isAdmin && (
+              <div className="alert alert-info">
+                Use the Leave Management and Performance sections to submit and
+                view your requests.
+              </div>
+            )}
+          </>
         )}
 
-        <EmployeeDetails
-          employee={selectedEmployee}
-          onClose={() => setSelectedEmployee(null)}
-        />
+        {activeSection === "leaves" && (
+          <>
+            {!isAdmin && (
+              <div className="mb-4">
+                {leaveError && (
+                  <div className="alert alert-danger">{leaveError}</div>
+                )}
+
+                <LeaveForm token={token} onLeaveSubmitted={fetchLeaves} />
+
+                <LeaveTable leaves={leaves} loading={leaveLoading} />
+              </div>
+            )}
+
+            {isAdmin && (
+              <div className="mb-4">
+                {leaveError && (
+                  <div className="alert alert-danger">{leaveError}</div>
+                )}
+
+                <LeaveTable
+                  leaves={filteredLeaves}
+                  loading={leaveLoading}
+                  isAdmin={true}
+                  onStatusUpdate={handleLeaveStatusUpdate}
+                  statusFilter={leaveStatusFilter}
+                  setStatusFilter={setLeaveStatusFilter}
+                  typeFilter={leaveTypeFilter}
+                  setTypeFilter={setLeaveTypeFilter}
+                />
+              </div>
+            )}
+          </>
+        )}
+
+        {activeSection === "performance" && (
+          <div className="mb-4">
+            {performanceError && (
+              <div className="alert alert-danger">{performanceError}</div>
+            )}
+
+            {isAdmin && <PerformanceCharts summary={performanceSummary} />}
+
+            {!isAdmin && (
+              <PerformanceForm
+                token={token}
+                onReviewSubmitted={handlePerformanceRefresh}
+              />
+            )}
+
+            {performanceLoading ? (
+              <div className="text-center my-5">
+                <div className="spinner-border text-primary"></div>
+                <p className="mt-2">Loading performance reviews...</p>
+              </div>
+            ) : (
+              <PerformanceTable
+                reviews={performanceReviews}
+                role={user?.role}
+                token={token}
+                onReviewUpdated={handlePerformanceRefresh}
+              />
+            )}
+          </div>
+        )}
+
+        {activeSection === "employees" && isAdmin && (
+          <>
+            <div className="mb-3">
+              <button
+                className="btn btn-success"
+                onClick={() => {
+                  setShowForm(true);
+                  setEditingEmployee(null);
+                }}
+              >
+                Add Employee
+              </button>
+            </div>
+
+            {showForm && (
+              <EmployeeForm
+                onSubmit={handleSubmit}
+                editingEmployee={editingEmployee}
+                onCancel={() => {
+                  setShowForm(false);
+                  setEditingEmployee(null);
+                }}
+              />
+            )}
+
+            <div className="card p-3 mb-4">
+              <div className="row g-3">
+                <div className="col-md-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search name or department"
+                    value={searchText}
+                    onChange={(event) => setSearchText(event.target.value)}
+                  />
+                </div>
+
+                <div className="col-md-3">
+                  <select
+                    className="form-select"
+                    value={statusFilter}
+                    onChange={(event) => setStatusFilter(event.target.value)}
+                  >
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="On Leave">On Leave</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+
+                <div className="col-md-3">
+                  <select
+                    className="form-select"
+                    value={departmentFilter}
+                    onChange={(event) =>
+                      setDepartmentFilter(event.target.value)
+                    }
+                  >
+                    <option value="">All Departments</option>
+                    {departments.map((department) => (
+                      <option key={department} value={department}>
+                        {department}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-md-3">
+                  <select
+                    className="form-select"
+                    value={sortOrder}
+                    onChange={(event) => setSortOrder(event.target.value)}
+                  >
+                    <option value="newest">Newest Joining First</option>
+                    <option value="oldest">Oldest Joining First</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="text-center my-5">
+                <div className="spinner-border text-primary"></div>
+                <p className="mt-2">Loading employees...</p>
+              </div>
+            ) : (
+              <EmployeeTable
+                employees={paginatedEmployees}
+                onEdit={(employee) => {
+                  setEditingEmployee(employee);
+                  setShowForm(true);
+                }}
+                onDelete={handleDelete}
+                onView={setSelectedEmployee}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                setCurrentPage={setCurrentPage}
+                isAdmin={isAdmin}
+              />
+            )}
+
+            <EmployeeDetails
+              employee={selectedEmployee}
+              onClose={() => setSelectedEmployee(null)}
+            />
+          </>
+        )}
       </div>
     </div>
   );

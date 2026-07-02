@@ -55,3 +55,27 @@ export const updateLeaveStatus = (id, status, token) => {
 export const getLeaveSummary = (token) => {
   return axios.get(`${LEAVE_API_URL}/summary`, getAuthHeader(token));
 };
+
+// task 6 performance
+
+const PERFORMANCE_API_URL = "http://localhost:5001/performance";
+
+export const submitPerformanceReview = (reviewData, token) => {
+  return axios.post(PERFORMANCE_API_URL, reviewData, getAuthHeader(token));
+};
+
+export const getPerformanceReviews = (token) => {
+  return axios.get(PERFORMANCE_API_URL, getAuthHeader(token));
+};
+
+export const updatePerformanceReview = (id, reviewData, token) => {
+  return axios.put(
+    `${PERFORMANCE_API_URL}/${id}`,
+    reviewData,
+    getAuthHeader(token),
+  );
+};
+
+export const getPerformanceSummary = (token) => {
+  return axios.get(`${PERFORMANCE_API_URL}/summary`, getAuthHeader(token));
+};
