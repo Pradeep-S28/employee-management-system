@@ -181,6 +181,10 @@ The employee form includes:
 
 <img src="./screenshots/charts.png" alt="Reporting Dashboard Charts" width="600" />
 
+### Performance Review Table
+
+<img src="./screenshots/performance-reviews.png" alt="performance-reviews" width="600" />
+
 ### Mobile Responsive View
 
 <img src="./screenshots/mobile%20responsive%201.png" alt="Mobile Responsive 1" width="350" />
@@ -192,65 +196,82 @@ The employee form includes:
 ## Folder Structure
 
 ```txt
-employee-management-system
-├── client
-│   ├── src
-│   │   ├── components
-│   │   │   ├── DashboardCards.jsx
-│   │   │   ├── EmployeeDetails.jsx
-│   │   │   ├── EmployeeForm.jsx
-│   │   │   ├── EmployeeTable.jsx
-│   │   │   ├── LeaveForm.jsx
-│   │   │   ├── LeaveTable.jsx
-│   │   │   └── ReportCharts.jsx
-│   │   ├── context
-│   │   │   └── AuthContext.jsx
-│   │   ├── pages
-│   │   │   ├── Dashboard.jsx
-│   │   │   └── Login.jsx
-│   │   ├── services
-│   │   │   └── api.js
-│   │   ├── styles
-│   │   │   └── App.css
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── package.json
-│   └── vite.config.js
+employee-management-system/
 │
-├── server
-│   ├── config
+├── client/
+│   ├── public/
+│   │
+│   └── src/
+│       ├── components/
+│       │   ├── DashboardCards.jsx
+│       │   ├── EmployeeDetails.jsx
+│       │   ├── EmployeeForm.jsx
+│       │   ├── EmployeeTable.jsx
+│       │   ├── LeaveForm.jsx
+│       │   ├── LeaveTable.jsx
+│       │   ├── ReportCharts.jsx
+│       │   ├── PerformanceForm.jsx
+│       │   ├── PerformanceTable.jsx
+│       │   └── PerformanceCharts.jsx
+│       │
+│       ├── context/
+│       │   └── AuthContext.jsx
+│       │
+│       ├── pages/
+│       │   ├── Dashboard.jsx
+│       │   └── Login.jsx
+│       │
+│       ├── services/
+│       │   └── api.js
+│       │
+│       ├── App.jsx
+│       ├── main.jsx
+│       └── index.css
+│
+├── server/
+│   ├── config/
 │   │   └── db.js
-│   ├── controllers
+│   │
+│   ├── controllers/
 │   │   ├── authController.js
 │   │   ├── employeeController.js
-│   │   └── leaveController.js
-│   ├── middleware
+│   │   ├── leaveController.js
+│   │   └── performanceController.js
+│   │
+│   ├── middleware/
 │   │   └── authMiddleware.js
-│   ├── routes
+│   │
+│   ├── routes/
 │   │   ├── authRoutes.js
 │   │   ├── employeeRoutes.js
-│   │   └── leaveRoutes.js
+│   │   ├── leaveRoutes.js
+│   │   └── performanceRoutes.js
+│   │
 │   ├── database.sql
 │   ├── server.js
-│   ├── package.json
 │   └── .env
 │
-├── Postman
-│   └── Employee Management System.postman_collection.json
-│
-├── screenshots
-│   ├── adminview_leave_request.png
-│   ├── charts.png
-│   ├── Dashboard&table.png
-│   ├── employeeview_leave_request.png
-│   ├── form.png
+├── screenshots/
+│   ├── login_form.png
 │   ├── login_admin_view.png
 │   ├── login_employee_view.png
-│   ├── login_form.png
-│   ├── mobile responsive 1.png
-│   └── mobile responsive 2.png
+│   ├── Dashboard&table.png
+│   ├── form.png
+│   ├── employee_leave_request_form.png
+│   ├── employee_leave_status_table.png
+│   ├── admin_leave_approval_view.png
+│   ├── reporting_dashboard_charts.png
+│   ├── performance_self_appraisal_form.png
+│   ├── performance_review_history.png
+│   ├── admin_performance_review_interface.png
+│   ├── performance_dashboard_charts.png
+│   ├── mobile_responsive_1.png
+│   └── mobile_responsive_2.png
+│   └── performance-reviews.png
 │
-└── README.md
+├── README.md
+├── package.json
+└── .gitignore
 ```
 
 ### Leave Management Module
@@ -271,3 +292,47 @@ employee-management-system
 - Charts are built using Recharts.
 - Dashboard charts update using live API data.
 - Loading and empty states are handled for reports and leave data.
+
+## Performance Management & Appraisal Module
+
+As part of Task 6, a Performance Management & Appraisal Module was added to the existing Employee Management System.
+
+### Features Added
+
+- Employees can submit self-appraisals with review period, self rating, and self comments.
+- Employees can view their own performance review history.
+- Admin can view all submitted performance reviews.
+- Admin can provide manager rating and manager feedback.
+- Review status updates from `Submitted` to `Reviewed` after admin review.
+- Performance dashboard includes visual reports using Recharts.
+- Added KPI cards for reviewed performance data.
+- Added bar chart for average rating by department.
+- Added pie chart for rating distribution.
+- Added trend chart for performance review periods.
+- APIs are protected using JWT authentication.
+- Role-based access control is applied:
+  - Employee can submit and view own reviews.
+  - Admin can review, rate, and view performance summaries.
+- Frontend is organized using reusable components:
+  - `PerformanceForm.jsx`
+  - `PerformanceTable.jsx`
+  - `PerformanceCharts.jsx`
+- Dashboard layout was improved using section buttons to avoid showing all modules at once.
+
+### Performance Workflow
+
+```text
+Employee Login
+     ↓
+Submit Self-Appraisal
+     ↓
+Status: Submitted
+     ↓
+Admin Login
+     ↓
+Manager Review & Rating
+     ↓
+Status: Reviewed
+     ↓
+Dashboard Charts Updated
+```
