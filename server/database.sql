@@ -71,3 +71,56 @@ CREATE TABLE IF NOT EXISTS performance_reviews (
   CONSTRAINT chk_manager_rating
   CHECK (manager_rating IS NULL OR manager_rating BETWEEN 1 AND 5)
 );
+
+-- Task 7: Payroll & Salary Management Module
+
+CREATE TABLE IF NOT EXISTS salary_structures (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  basic_salary DECIMAL(10,2) NOT NULL,
+  hra DECIMAL(10,2) NOT NULL,
+  allowances DECIMAL(10,2) NOT NULL,
+  deductions DECIMAL(10,2) NOT NULL,
+  net_salary DECIMAL(10,2) 
+    GENERATED ALWAYS AS (basic_salary + hra + allowances - deductions) STORED,
+  effective_from DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_salary_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT chk_basic_salary CHECK (basic_salary >= 0),
+  CONSTRAINT chk_hra CHECK (hra >= 0),
+  CONSTRAINT chk_allowances CHECK (allowances >= 0),
+  CONSTRAINT chk_deductions CHECK (deductions >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS payslips (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  salary_structure_id INT NOT NULL,
+  pay_month VARCHAR(20) NOT NULL,
+  days_worked INT NOT NULL,
+  leave_deductions DECIMAL(10,2) NOT NULL DEFAULT 0,
+  final_amount_paid DECIMAL(10,2) NOT NULL,
+  generated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('Generated', 'Paid') NOT NULL DEFAULT 'Generated',
+
+  CONSTRAINT fk_payslip_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT fk_payslip_salary_structure
+  FOREIGN KEY (salary_structure_id)
+  REFERENCES salary_structures(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT chk_days_worked CHECK (days_worked >= 0),
+  CONSTRAINT chk_leave_deductions CHECK (leave_deductions >= 0),
+  CONSTRAINT chk_final_amount CHECK (final_amount_paid >= 0),
+
+  CONSTRAINT unique_employee_month UNIQUE (employee_id, pay_month)
+);
