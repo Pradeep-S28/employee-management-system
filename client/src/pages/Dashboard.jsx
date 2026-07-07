@@ -13,6 +13,7 @@ import PerformanceCharts from "../components/PerformanceCharts";
 import SalaryForm from "../components/SalaryForm";
 import PayslipGenerator from "../components/PayslipGenerator";
 import PayslipTable from "../components/PayslipTable";
+import PayrollCharts from "../components/PayrollCharts";
 
 import {
   getLeaveRequests,
@@ -39,6 +40,7 @@ import {
   generatePayslip,
   getPayslips,
   getPayslipById,
+  getPayrollSummary,
 } from "../services/api";
 
 const Dashboard = () => {
@@ -98,6 +100,8 @@ const Dashboard = () => {
   const [payslipsLoading, setPayslipsLoading] = useState(false);
   const [selectedPayslip, setSelectedPayslip] = useState(null);
   const [employeeSalary, setEmployeeSalary] = useState(null);
+  const [payrollSummary, setPayrollSummary] = useState(null);
+  const [payrollSummaryLoading, setPayrollSummaryLoading] = useState(false);
 
   const fetchEmployees = async () => {
     try {
@@ -254,6 +258,7 @@ const Dashboard = () => {
 
       setPayrollMessage(response.data.message);
       await fetchPayslips();
+      await fetchPayrollSummary();
       setSelectedPayrollSalary(null);
 
       return true;
@@ -301,6 +306,24 @@ const Dashboard = () => {
           error.response?.data?.message || "Failed to fetch salary structure.",
         );
       }
+    }
+  };
+
+  const fetchPayrollSummary = async () => {
+    if (!isAdmin) return;
+
+    try {
+      setPayrollSummaryLoading(true);
+      setPayrollError("");
+
+      const response = await getPayrollSummary(token);
+      setPayrollSummary(response.data);
+    } catch (error) {
+      setPayrollError(
+        error.response?.data?.message || "Failed to fetch payroll summary.",
+      );
+    } finally {
+      setPayrollSummaryLoading(false);
     }
   };
 
@@ -490,6 +513,8 @@ const Dashboard = () => {
                   setPayrollError("");
                   setSelectedPayslip(null);
                   fetchPayslips();
+                  fetchEmployeeSalary();
+                  fetchPayrollSummary();
                 }}
               >
                 Payroll
@@ -599,6 +624,14 @@ const Dashboard = () => {
 
             {isAdmin ? (
               <>
+                {payrollSummaryLoading ? (
+                  <div className="text-center my-4">
+                    Loading payroll analytics...
+                  </div>
+                ) : (
+                  payrollSummary && <PayrollCharts summary={payrollSummary} />
+                )}
+
                 <SalaryForm
                   employees={employees}
                   onSubmit={handleSalarySubmit}
