@@ -97,6 +97,7 @@ const Dashboard = () => {
   const [payslips, setPayslips] = useState([]);
   const [payslipsLoading, setPayslipsLoading] = useState(false);
   const [selectedPayslip, setSelectedPayslip] = useState(null);
+  const [employeeSalary, setEmployeeSalary] = useState(null);
 
   const fetchEmployees = async () => {
     try {
@@ -280,6 +281,26 @@ const Dashboard = () => {
       );
     } finally {
       setPayslipsLoading(false);
+    }
+  };
+
+  const fetchEmployeeSalary = async () => {
+    if (isAdmin || !user?.employee_id) return;
+
+    try {
+      setPayrollError("");
+
+      const response = await getSalaryStructure(user.employee_id, token);
+
+      setEmployeeSalary(response.data);
+    } catch (error) {
+      setEmployeeSalary(null);
+
+      if (error.response?.status !== 404) {
+        setPayrollError(
+          error.response?.data?.message || "Failed to fetch salary structure.",
+        );
+      }
     }
   };
 
