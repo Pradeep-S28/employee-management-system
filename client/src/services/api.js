@@ -79,3 +79,42 @@ export const updatePerformanceReview = (id, reviewData, token) => {
 export const getPerformanceSummary = (token) => {
   return axios.get(`${PERFORMANCE_API_URL}/summary`, getAuthHeader(token));
 };
+
+// task 7 payroll
+
+const PAYROLL_API_URL = "http://localhost:5001/payroll";
+
+export const setSalaryStructure = (salaryData, token) => {
+  return axios.post(
+    `${PAYROLL_API_URL}/salary`,
+    salaryData,
+    getAuthHeader(token),
+  );
+};
+
+export const getSalaryStructure = (employeeId, token) => {
+  return axios.get(
+    `${PAYROLL_API_URL}/salary/${employeeId}`,
+    getAuthHeader(token),
+  );
+};
+
+export const generatePayslip = (payslipData, token) => {
+  return axios.post(
+    `${PAYROLL_API_URL}/generate`,
+    payslipData,
+    getAuthHeader(token),
+  );
+};
+
+export const getPayslips = (token) => {
+  return axios.get(`${PAYROLL_API_URL}/payslips`, getAuthHeader(token));
+};
+
+export const getPayslipById = (id, token) => {
+  return axios.get(`${PAYROLL_API_URL}/payslips/${id}`, getAuthHeader(token));
+};
+
+export const getPayrollSummary = (token) => {
+  return axios.get(`${PAYROLL_API_URL}/summary`, getAuthHeader(token));
+};
