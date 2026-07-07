@@ -9,6 +9,10 @@ import PerformanceForm from "../components/PerformanceForm";
 import PerformanceTable from "../components/PerformanceTable";
 import PerformanceCharts from "../components/PerformanceCharts";
 
+// task 7 payroll
+import SalaryForm from "../components/SalaryForm";
+import PayslipGenerator from "../components/PayslipGenerator";
+
 import {
   getLeaveRequests,
   updateLeaveStatus,
@@ -29,6 +33,9 @@ import {
   addEmployee,
   updateEmployee,
   deleteEmployee,
+  setSalaryStructure,
+  getSalaryStructure,
+  generatePayslip,
 } from "../services/api";
 
 const Dashboard = () => {
@@ -77,6 +84,13 @@ const Dashboard = () => {
   });
   const [performanceLoading, setPerformanceLoading] = useState(false);
   const [performanceError, setPerformanceError] = useState("");
+
+  // task 7 payroll
+  const [salaryLoading, setSalaryLoading] = useState(false);
+  const [payrollMessage, setPayrollMessage] = useState("");
+  const [payrollError, setPayrollError] = useState("");
+  const [selectedPayrollSalary, setSelectedPayrollSalary] = useState(null);
+  const [payslipLoading, setPayslipLoading] = useState(false);
 
   const fetchEmployees = async () => {
     try {
@@ -172,6 +186,79 @@ const Dashboard = () => {
       fetchPerformanceSummary();
     }
   }, [token, user?.role]);
+
+  const handleSalarySubmit = async (salaryData) => {
+    try {
+      setSalaryLoading(true);
+      setPayrollMessage("");
+      setPayrollError("");
+
+      const response = await setSalaryStructure(salaryData, token);
+
+      setPayrollMessage(response.data.message);
+      return true;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        "Failed to save salary structure. Please try again.";
+
+      setPayrollError(message);
+      return false;
+    } finally {
+      setSalaryLoading(false);
+    }
+  };
+
+  const handlePayrollEmployeeChange = async (employeeId) => {
+    setSelectedPayrollSalary(null);
+    setPayrollError("");
+
+    if (!employeeId) return;
+
+    try {
+      const response = await getSalaryStructure(employeeId, token);
+      setSelectedPayrollSalary(response.data);
+    } catch (error) {
+      setPayrollError(
+        error.response?.data?.message ||
+          "Salary structure not found for this employee.",
+      );
+    }
+  };
+
+  const handlePayslipSubmit = async (payslipData) => {
+    try {
+      setPayslipLoading(true);
+      setPayrollMessage("");
+      setPayrollError("");
+
+      const formattedData = {
+        ...payslipData,
+        pay_month: new Date(`${payslipData.pay_month}-01`).toLocaleDateString(
+          "en-US",
+          {
+            month: "long",
+            year: "numeric",
+          },
+        ),
+      };
+
+      const response = await generatePayslip(formattedData, token);
+
+      setPayrollMessage(response.data.message);
+      setSelectedPayrollSalary(null);
+
+      return true;
+    } catch (error) {
+      setPayrollError(
+        error.response?.data?.message || "Failed to generate payslip.",
+      );
+
+      return false;
+    } finally {
+      setPayslipLoading(false);
+    }
+  };
 
   const handleSubmit = async (employeeData) => {
     try {
@@ -333,6 +420,21 @@ const Dashboard = () => {
               >
                 Performance
               </button>
+
+              <button
+                className={`btn ${
+                  activeSection === "payroll"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => {
+                  setActiveSection("payroll");
+                  setPayrollMessage("");
+                  setPayrollError("");
+                }}
+              >
+                Payroll
+              </button>
             </div>
           </div>
         </div>
@@ -422,6 +524,40 @@ const Dashboard = () => {
                 token={token}
                 onReviewUpdated={handlePerformanceRefresh}
               />
+            )}
+          </div>
+        )}
+
+        {activeSection === "payroll" && (
+          <div className="mb-4">
+            {payrollMessage && (
+              <div className="alert alert-success">{payrollMessage}</div>
+            )}
+
+            {payrollError && (
+              <div className="alert alert-danger">{payrollError}</div>
+            )}
+
+            {isAdmin ? (
+              <>
+                <SalaryForm
+                  employees={employees}
+                  onSubmit={handleSalarySubmit}
+                  loading={salaryLoading}
+                />
+
+                <PayslipGenerator
+                  employees={employees}
+                  selectedSalary={selectedPayrollSalary}
+                  onEmployeeChange={handlePayrollEmployeeChange}
+                  onSubmit={handlePayslipSubmit}
+                  loading={payslipLoading}
+                />
+              </>
+            ) : (
+              <div className="alert alert-info">
+                Your salary structure and payslip history will appear here.
+              </div>
             )}
           </div>
         )}
