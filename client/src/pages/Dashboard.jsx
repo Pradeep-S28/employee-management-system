@@ -12,6 +12,7 @@ import PerformanceCharts from "../components/PerformanceCharts";
 // task 7 payroll
 import SalaryForm from "../components/SalaryForm";
 import PayslipGenerator from "../components/PayslipGenerator";
+import PayslipTable from "../components/PayslipTable";
 
 import {
   getLeaveRequests,
@@ -36,6 +37,8 @@ import {
   setSalaryStructure,
   getSalaryStructure,
   generatePayslip,
+  getPayslips,
+  getPayslipById,
 } from "../services/api";
 
 const Dashboard = () => {
@@ -91,6 +94,9 @@ const Dashboard = () => {
   const [payrollError, setPayrollError] = useState("");
   const [selectedPayrollSalary, setSelectedPayrollSalary] = useState(null);
   const [payslipLoading, setPayslipLoading] = useState(false);
+  const [payslips, setPayslips] = useState([]);
+  const [payslipsLoading, setPayslipsLoading] = useState(false);
+  const [selectedPayslip, setSelectedPayslip] = useState(null);
 
   const fetchEmployees = async () => {
     try {
@@ -246,6 +252,7 @@ const Dashboard = () => {
       const response = await generatePayslip(formattedData, token);
 
       setPayrollMessage(response.data.message);
+      await fetchPayslips();
       setSelectedPayrollSalary(null);
 
       return true;
@@ -257,6 +264,35 @@ const Dashboard = () => {
       return false;
     } finally {
       setPayslipLoading(false);
+    }
+  };
+
+  const fetchPayslips = async () => {
+    try {
+      setPayslipsLoading(true);
+      setPayrollError("");
+
+      const response = await getPayslips(token);
+      setPayslips(response.data);
+    } catch (error) {
+      setPayrollError(
+        error.response?.data?.message || "Failed to fetch payslips.",
+      );
+    } finally {
+      setPayslipsLoading(false);
+    }
+  };
+
+  const handlePayslipRowClick = async (payslipId) => {
+    try {
+      setPayrollError("");
+
+      const response = await getPayslipById(payslipId, token);
+      setSelectedPayslip(response.data);
+    } catch (error) {
+      setPayrollError(
+        error.response?.data?.message || "Failed to fetch payslip details.",
+      );
     }
   };
 
@@ -431,6 +467,8 @@ const Dashboard = () => {
                   setActiveSection("payroll");
                   setPayrollMessage("");
                   setPayrollError("");
+                  setSelectedPayslip(null);
+                  fetchPayslips();
                 }}
               >
                 Payroll
@@ -559,6 +597,97 @@ const Dashboard = () => {
                 Your salary structure and payslip history will appear here.
               </div>
             )}
+          </div>
+        )}
+
+        {payslipsLoading ? (
+          <div className="text-center my-4">Loading payslips...</div>
+        ) : (
+          <PayslipTable
+            payslips={payslips}
+            onRowClick={handlePayslipRowClick}
+            isAdmin={isAdmin}
+          />
+        )}
+
+        {selectedPayslip && (
+          <div className="card p-3 mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="mb-0">Payslip Details</h5>
+
+              <button
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setSelectedPayslip(null)}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="row g-3">
+              <div className="col-md-4">
+                <strong>Employee</strong>
+                <div>{selectedPayslip.full_name}</div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>Department</strong>
+                <div>{selectedPayslip.department}</div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>Pay Month</strong>
+                <div>{selectedPayslip.pay_month}</div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>Basic Salary</strong>
+                <div>
+                  ₹
+                  {Number(selectedPayslip.basic_salary).toLocaleString("en-IN")}
+                </div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>HRA</strong>
+                <div>
+                  ₹{Number(selectedPayslip.hra).toLocaleString("en-IN")}
+                </div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>Allowances</strong>
+                <div>
+                  ₹{Number(selectedPayslip.allowances).toLocaleString("en-IN")}
+                </div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>Deductions</strong>
+                <div>
+                  ₹{Number(selectedPayslip.deductions).toLocaleString("en-IN")}
+                </div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>Leave Deductions</strong>
+                <div>
+                  ₹
+                  {Number(selectedPayslip.leave_deductions).toLocaleString(
+                    "en-IN",
+                  )}
+                </div>
+              </div>
+
+              <div className="col-md-4">
+                <strong>Final Amount</strong>
+                <div>
+                  ₹
+                  {Number(selectedPayslip.final_amount_paid).toLocaleString(
+                    "en-IN",
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
