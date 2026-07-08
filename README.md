@@ -209,10 +209,14 @@ employee-management-system/
 │       │   ├── EmployeeTable.jsx
 │       │   ├── LeaveForm.jsx
 │       │   ├── LeaveTable.jsx
-│       │   ├── ReportCharts.jsx
+│       │   ├── PayrollCharts.jsx
+│       │   ├── PayslipGenerator.jsx
+│       │   ├── PayslipTable.jsx
+│       │   ├── PerformanceCharts.jsx
 │       │   ├── PerformanceForm.jsx
 │       │   ├── PerformanceTable.jsx
-│       │   └── PerformanceCharts.jsx
+│       │   ├── ReportCharts.jsx
+│       │   └── SalaryForm.jsx
 │       │
 │       ├── context/
 │       │   └── AuthContext.jsx
@@ -236,6 +240,7 @@ employee-management-system/
 │   │   ├── authController.js
 │   │   ├── employeeController.js
 │   │   ├── leaveController.js
+│   │   ├── payrollController.js
 │   │   └── performanceController.js
 │   │
 │   ├── middleware/
@@ -245,6 +250,7 @@ employee-management-system/
 │   │   ├── authRoutes.js
 │   │   ├── employeeRoutes.js
 │   │   ├── leaveRoutes.js
+│   │   ├── payrollRoutes.js
 │   │   └── performanceRoutes.js
 │   │
 │   ├── database.sql
