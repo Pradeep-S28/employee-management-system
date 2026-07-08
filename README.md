@@ -185,6 +185,12 @@ The employee form includes:
 
 <img src="./screenshots/performance-reviews.png" alt="performance-reviews" width="600" />
 
+### Payroll Table
+
+<img src="./screenshots/payroll-1" alt="performance-reviews" width="600" />
+<img src="./screenshots/payroll-2" alt="performance-reviews" width="600" />
+<img src="./screenshots/payroll-3" alt="performance-reviews" width="600" />
+
 ### Mobile Responsive View
 
 <img src="./screenshots/mobile%20responsive%201.png" alt="Mobile Responsive 1" width="350" />
