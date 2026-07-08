@@ -187,9 +187,9 @@ The employee form includes:
 
 ### Payroll Table
 
-<img src="./screenshots/payroll-1" alt="performance-reviews" width="600" />
-<img src="./screenshots/payroll-2" alt="performance-reviews" width="600" />
-<img src="./screenshots/payroll-3" alt="performance-reviews" width="600" />
+<img src="./screenshots/payroll-1.png" alt="performance-reviews" width="600" />
+<img src="./screenshots/payroll-2.png" alt="performance-reviews" width="600" />
+<img src="./screenshots/payroll-3.png" alt="performance-reviews" width="600" />
 
 ### Mobile Responsive View
 
