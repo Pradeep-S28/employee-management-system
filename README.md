@@ -212,6 +212,7 @@ employee-management-system/
 │       │   ├── DashboardCards.jsx
 │       │   ├── EmployeeDetails.jsx
 │       │   ├── EmployeeForm.jsx
+│       │   ├── EmployeeReports.jsx
 │       │   ├── EmployeeTable.jsx
 │       │   ├── LeaveForm.jsx
 │       │   ├── LeaveTable.jsx
@@ -263,6 +264,7 @@ employee-management-system/
 │   │
 │   ├── services/
 │   │   └── reportServices.js
+│   │
 │   ├── database.sql
 │   ├── server.js
 │   └── .env

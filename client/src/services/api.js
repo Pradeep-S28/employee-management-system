@@ -118,3 +118,13 @@ export const getPayslipById = (id, token) => {
 export const getPayrollSummary = (token) => {
   return axios.get(`${PAYROLL_API_URL}/summary`, getAuthHeader(token));
 };
+
+// task 8
+const REPORT_API_URL = "http://localhost:5001/reports";
+
+export const getEmployeeReports = (token, params = {}) => {
+  return axios.get(`${REPORT_API_URL}/employees`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};

@@ -15,6 +15,9 @@ import PayslipGenerator from "../components/PayslipGenerator";
 import PayslipTable from "../components/PayslipTable";
 import PayrollCharts from "../components/PayrollCharts";
 
+// task 8
+import EmployeeReports from "../components/EmployeeReports";
+
 import {
   getLeaveRequests,
   updateLeaveStatus,
@@ -479,6 +482,19 @@ const Dashboard = () => {
                 </button>
               )}
 
+              {isAdmin && (
+                <button
+                  className={`btn ${
+                    activeSection === "employeeReports"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setActiveSection("employeeReports")}
+                >
+                  Employee Reports
+                </button>
+              )}
+
               <button
                 className={`btn ${
                   activeSection === "leaves"
@@ -544,6 +560,10 @@ const Dashboard = () => {
               </div>
             )}
           </>
+        )}
+
+        {activeSection === "employeeReports" && isAdmin && (
+          <EmployeeReports token={token} />
         )}
 
         {activeSection === "leaves" && (
