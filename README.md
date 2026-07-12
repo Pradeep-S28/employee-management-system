@@ -247,7 +247,8 @@ employee-management-system/
 │   │   ├── employeeController.js
 │   │   ├── leaveController.js
 │   │   ├── payrollController.js
-│   │   └── performanceController.js
+│   │   ├── performanceController.js
+│   │   └── reportController.js
 │   │
 │   ├── middleware/
 │   │   └── authMiddleware.js
@@ -257,8 +258,11 @@ employee-management-system/
 │   │   ├── employeeRoutes.js
 │   │   ├── leaveRoutes.js
 │   │   ├── payrollRoutes.js
-│   │   └── performanceRoutes.js
+│   │   ├── performanceRoutes.js
+│   │   └── reportRoutes.js
 │   │
+│   ├── services/
+│   │   └── reportServices.js
 │   ├── database.sql
 │   ├── server.js
 │   └── .env

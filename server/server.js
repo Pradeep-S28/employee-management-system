@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const leaveRoutes = require("./routes/leaveRoutes");
 const performanceRoutes = require("./routes/performanceRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/auth", authRoutes);
 app.use("/employees", employeeRoutes);
 app.use("/performance", performanceRoutes);
 app.use("/payroll", payrollRoutes);
+app.use("/reports", reportRoutes);
 
 const PORT = process.env.PORT || 5000;
 
