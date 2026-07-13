@@ -17,6 +17,9 @@ import PayrollCharts from "../components/PayrollCharts";
 
 // task 8
 import EmployeeReports from "../components/EmployeeReports";
+import DashboardReports from "../components/DashboardReports";
+import LeaveReports from "../components/LeaveReports";
+import PayrollReports from "../components/PayrollReports";
 
 import {
   getLeaveRequests,
@@ -495,6 +498,19 @@ const Dashboard = () => {
                 </button>
               )}
 
+              {isAdmin && (
+                <button
+                  className={`btn ${
+                    activeSection === "reportsDashboard"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setActiveSection("reportsDashboard")}
+                >
+                  Reports Dashboard
+                </button>
+              )}
+
               <button
                 className={`btn ${
                   activeSection === "leaves"
@@ -516,6 +532,32 @@ const Dashboard = () => {
               >
                 Performance
               </button>
+
+              {isAdmin && (
+                <button
+                  className={`btn ${
+                    activeSection === "leaveReports"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setActiveSection("leaveReports")}
+                >
+                  Leave Reports
+                </button>
+              )}
+
+              {isAdmin && (
+                <button
+                  className={`btn ${
+                    activeSection === "payrollReports"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setActiveSection("payrollReports")}
+                >
+                  Payroll Reports
+                </button>
+              )}
 
               <button
                 className={`btn ${
@@ -871,6 +913,18 @@ const Dashboard = () => {
               onClose={() => setSelectedEmployee(null)}
             />
           </>
+        )}
+
+        {activeSection === "reportsDashboard" && isAdmin && (
+          <DashboardReports token={token} />
+        )}
+
+        {activeSection === "leaveReports" && isAdmin && (
+          <LeaveReports token={token} employees={employees} />
+        )}
+
+        {activeSection === "payrollReports" && isAdmin && (
+          <PayrollReports token={token} employees={employees} />
         )}
       </div>
     </div>

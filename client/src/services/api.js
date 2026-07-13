@@ -128,3 +128,29 @@ export const getEmployeeReports = (token, params = {}) => {
     params,
   });
 };
+
+export const getReportsDashboard = (token) => {
+  return axios.get(`${REPORT_API_URL}/dashboard`, getAuthHeader(token));
+};
+
+export const getLeaveReports = (token, params = {}) => {
+  return axios.get(`${REPORT_API_URL}/leaves`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const getPayrollReports = (token, params = {}) => {
+  return axios.get(`${REPORT_API_URL}/payroll`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const exportReport = (token, format, params = {}) => {
+  return axios.get(`${REPORT_API_URL}/export/${format}`, {
+    ...getAuthHeader(token),
+    params,
+    responseType: "blob",
+  });
+};

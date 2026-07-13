@@ -210,13 +210,17 @@ employee-management-system/
 │   └── src/
 │       ├── components/
 │       │   ├── DashboardCards.jsx
+│       │   ├── DashboardReports.jsx
 │       │   ├── EmployeeDetails.jsx
 │       │   ├── EmployeeForm.jsx
 │       │   ├── EmployeeReports.jsx
 │       │   ├── EmployeeTable.jsx
+│       │   ├── ExportButtons.jsx
 │       │   ├── LeaveForm.jsx
+│       │   ├── LeaveReports.jsx
 │       │   ├── LeaveTable.jsx
 │       │   ├── PayrollCharts.jsx
+│       │   ├── PayrollReports.jsx
 │       │   ├── PayslipGenerator.jsx
 │       │   ├── PayslipTable.jsx
 │       │   ├── PerformanceCharts.jsx

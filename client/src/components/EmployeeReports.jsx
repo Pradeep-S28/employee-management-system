@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEmployeeReports } from "../services/api";
+import ExportButtons from "./ExportButtons";
 
 const EmployeeReports = ({ token }) => {
   const [employees, setEmployees] = useState([]);
@@ -84,6 +85,20 @@ const EmployeeReports = ({ token }) => {
       <div className="card shadow-sm">
         <div className="card-body">
           <h3 className="mb-4">Employee Reports</h3>
+
+          <div className="mb-4">
+            <ExportButtons
+              token={token}
+              reportType="employees"
+              filters={{
+                search: filters.search,
+                department: filters.department,
+                status: filters.status,
+                sortBy: filters.sortBy,
+                order: filters.order,
+              }}
+            />
+          </div>
 
           <div className="row g-3 mb-4">
             <div className="col-md-4">
