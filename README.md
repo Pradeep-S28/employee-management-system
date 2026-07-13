@@ -1,14 +1,14 @@
 # Employee Management System
 
-A full-stack Employee Management System built using **React.js, Node.js, Express.js, MySQL, JWT Authentication, and Role-Based Access Control (RBAC)**.
+A full-stack Employee Management System built using **React.js, Node.js, Express.js, MySQL, JWT Authentication, Role-Based Access Control, Recharts, and Report Export Tools**.
 
-This project allows users to securely login and manage employee records. Admin users can add, update, delete, and view employees, while employee users can only view employee data.
+The system allows administrators and employees to securely manage employee data, leave requests, performance reviews, payroll records, attendance data, reports, analytics, and downloadable business reports.
 
 ---
 
 ## Project Overview
 
-The Employee Management System is a responsive web application used to manage employee records.
+The Employee Management System is a responsive web application used to manage employee-related operations.
 
 The project includes:
 
@@ -17,185 +17,14 @@ The project includes:
 - MySQL database
 - JWT-based authentication
 - Role-Based Access Control
-- Protected API routes
+- Employee management
+- Leave management
+- Performance appraisal
+- Payroll management
+- Attendance reporting
+- Reports and analytics dashboard
+- CSV, Excel, and PDF exports
 - Responsive dashboard UI
-
----
-
-## Tech Stack
-
-### Frontend
-
-- React.js
-- JavaScript
-- Bootstrap
-- Axios
-- HTML5
-- CSS3
-- Vite
-
-### Backend
-
-- Node.js
-- Express.js
-- MySQL
-- mysql2
-- JWT
-- bcrypt
-- CORS
-- dotenv
-
-### Tools Used
-
-- MySQL Workbench
-- Postman
-- Git & GitHub
-- VS Code
-
----
-
-## Features Implemented
-
-### Authentication
-
-- Login system using username and password
-- JWT token generation after successful login
-- Invalid login handling
-- Logout functionality
-- Protected frontend dashboard
-
-### Role-Based Access Control
-
-Two roles are implemented:
-
-#### Admin
-
-Admin can:
-
-- View all employees
-- Add new employees
-- Edit employee details
-- Delete employees
-- Search, filter, sort, and paginate records
-
-#### Employee
-
-Employee can:
-
-- Login to the system
-- View employee records
-- Search, filter, sort, and paginate records
-
-Employee users cannot add, edit, or delete employee records.
-
----
-
-## Dashboard Summary
-
-The dashboard displays summary cards for:
-
-- Total Employees
-- Active Employees
-- Employees on Leave
-- Departments Count
-
-The cards update automatically based on backend data.
-
----
-
-## Employee Management
-
-Admin can manage employee records with the following features:
-
-- View all employees in a responsive table
-- Add new employee
-- Edit existing employee
-- Delete employee
-- View complete employee details in a modal
-
----
-
-## Search, Filter, Sort and Pagination
-
-The employee table includes:
-
-- Search by employee name or department
-- Filter by status
-- Filter by department
-- Sort by date of joining
-- Pagination with 5 records per page
-
----
-
-## Form Validation
-
-The employee form includes:
-
-- Required field validation
-- Email format validation
-- Date of joining cannot be a future date
-- Inline validation messages
-
----
-
-## API Integration
-
-- Axios is used for frontend API calls
-- Backend REST APIs are built with Express.js
-- JWT token is sent in request headers for protected routes
-- Error messages are displayed for failed API requests
-
----
-
-## Screenshots
-
-### Login Page
-
-<img src="./screenshots/login_form.png" alt="Login Page" width="600" />
-
-### Admin Dashboard View
-
-<img src="./screenshots/login_admin_view.png" alt="Admin Dashboard" width="600" />
-
-### Employee Dashboard View
-
-<img src="./screenshots/login_employee_view.png" alt="Employee Dashboard" width="600" />
-
-### Dashboard and Employee Table
-
-<img src="./screenshots/Dashboard&table.png" alt="Dashboard Table" width="600" />
-
-### Employee Form
-
-<img src="./screenshots/form.png" alt="Employee Form" width="600" />
-
-### Employee Leave Request View
-
-<img src="./screenshots/employeeview_leave_request.png" alt="Employee Leave Request View" width="600" />
-
-### Admin Leave Approval View
-
-<img src="./screenshots/adminview_leave_request.png" alt="Admin Leave Approval View" width="600" />
-
-### Reporting Dashboard Charts
-
-<img src="./screenshots/charts.png" alt="Reporting Dashboard Charts" width="600" />
-
-### Performance Review Table
-
-<img src="./screenshots/performance-reviews.png" alt="performance-reviews" width="600" />
-
-### Payroll Table
-
-<img src="./screenshots/payroll-1.png" alt="performance-reviews" width="600" />
-<img src="./screenshots/payroll-2.png" alt="performance-reviews" width="600" />
-<img src="./screenshots/payroll-3.png" alt="performance-reviews" width="600" />
-
-### Mobile Responsive View
-
-<img src="./screenshots/mobile%20responsive%201.png" alt="Mobile Responsive 1" width="350" />
-
-<img src="./screenshots/mobile%20responsive%202.png" alt="Mobile Responsive 2" width="350" />
 
 ---
 
@@ -297,50 +126,181 @@ employee-management-system/
 └── .gitignore
 ```
 
-### Leave Management Module
+---
 
-- Employees can submit leave requests with leave type, start date, end date, and reason.
-- Mandatory field validation is added for the leave request form.
-- End date must be greater than or equal to start date.
-- Employees can view only their own leave request status.
-- Admin can view all leave requests.
-- Admin can filter leave requests by status and leave type.
-- Admin can approve or reject pending leave requests with confirmation.
+## Tech Stack
 
-### Visual Reporting Dashboard
+### Frontend
 
-- Employees by Department chart.
-- Leave Requests by Status chart.
-- Leave Requests by Type chart.
-- Charts are built using Recharts.
-- Dashboard charts update using live API data.
-- Loading and empty states are handled for reports and leave data.
+- React.js
+- JavaScript
+- Bootstrap
+- Axios
+- Recharts
+- HTML5
+- CSS3
+- Vite
+
+### Backend
+
+- Node.js
+- Express.js
+- MySQL
+- mysql2
+- JWT
+- bcrypt
+- ExcelJS
+- PDFKit
+- CORS
+- dotenv
+
+### Tools Used
+
+- MySQL Workbench
+- Postman
+- Git & GitHub
+- VS Code
+
+---
+
+## Features Implemented
+
+### Authentication
+
+- Login using username and password
+- JWT token generation after successful login
+- Invalid login handling
+- Logout functionality
+- Protected frontend dashboard
+- Protected backend API routes
+
+---
+
+## Role-Based Access Control
+
+Two roles are implemented:
+
+### Admin
+
+Admin can:
+
+- View all employees
+- Add new employees
+- Edit employee details
+- Delete employees
+- Search, filter, sort, and paginate records
+- View and manage leave requests
+- Review employee performance
+- Manage salary structures
+- Generate payslips
+- View reports and analytics
+- Export reports as CSV, Excel, and PDF
+
+### Employee
+
+Employee can:
+
+- Login to the system
+- View employee data
+- Submit leave requests
+- View their own leave request status
+- Submit self-appraisals
+- View their own performance history
+- View salary and payslip information
+
+Employees cannot add, edit, or delete employee records.
+
+---
+
+## Dashboard Summary
+
+The main dashboard displays summary cards for:
+
+- Total Employees
+- Active Employees
+- Employees on Leave
+- Departments Count
+
+The cards update automatically based on available employee data.
+
+---
+
+## Employee Management
+
+Admin can manage employee records using the following features:
+
+- View all employees in a responsive table
+- Add new employee
+- Edit existing employee
+- Delete employee
+- View complete employee details
+- Search employees
+- Filter employees
+- Sort employees
+- Paginate employee records
+
+---
+
+## Search, Filter, Sort and Pagination
+
+The employee table includes:
+
+- Search by employee name or department
+- Filter by status
+- Filter by department
+- Sort by date of joining
+- Pagination with 5 records per page
+
+---
+
+## Form Validation
+
+The employee form includes:
+
+- Required field validation
+- Email format validation
+- Date of joining cannot be a future date
+- Inline validation messages
+
+---
+
+## Leave Management Module
+
+- Employees can submit leave requests
+- Leave types include Sick, Casual, and Paid
+- Start date, end date, and reason are required
+- End date must be greater than or equal to start date
+- Employees can view only their own leave requests
+- Admin can view all leave requests
+- Admin can filter leave requests by status and leave type
+- Admin can approve or reject pending requests
+- Confirmation is shown before status updates
+- Leave summary analytics are available
+
+---
 
 ## Performance Management & Appraisal Module
 
-As part of Task 6, a Performance Management & Appraisal Module was added to the existing Employee Management System.
+The Performance Management module allows employees and administrators to manage the review process.
 
-### Features Added
+### Features
 
-- Employees can submit self-appraisals with review period, self rating, and self comments.
-- Employees can view their own performance review history.
-- Admin can view all submitted performance reviews.
-- Admin can provide manager rating and manager feedback.
-- Review status updates from `Submitted` to `Reviewed` after admin review.
-- Performance dashboard includes visual reports using Recharts.
-- Added KPI cards for reviewed performance data.
-- Added bar chart for average rating by department.
-- Added pie chart for rating distribution.
-- Added trend chart for performance review periods.
-- APIs are protected using JWT authentication.
-- Role-based access control is applied:
-  - Employee can submit and view own reviews.
-  - Admin can review, rate, and view performance summaries.
-- Frontend is organized using reusable components:
-  - `PerformanceForm.jsx`
-  - `PerformanceTable.jsx`
-  - `PerformanceCharts.jsx`
-- Dashboard layout was improved using section buttons to avoid showing all modules at once.
+- Employees can submit self-appraisals
+- Self-rating range from 1 to 5
+- Employees can add self-comments
+- Employees can view their own review history
+- Admin can view all performance reviews
+- Admin can provide manager ratings
+- Admin can provide manager feedback
+- Review status changes from `Submitted` to `Reviewed`
+- Performance analytics are displayed using Recharts
+
+### Performance Analytics
+
+- Average rating by department
+- Rating distribution
+- Performance review trend
+- Reviewed performance KPI cards
 
 ### Performance Workflow
 
@@ -353,9 +313,9 @@ Status: Submitted
      ↓
 Admin Login
      ↓
-Manager Review & Rating
+Manager Review and Rating
      ↓
 Status: Reviewed
      ↓
-Dashboard Charts Updated
+Performance Charts Updated
 ```
