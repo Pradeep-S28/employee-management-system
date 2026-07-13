@@ -20,6 +20,7 @@ import EmployeeReports from "../components/EmployeeReports";
 import DashboardReports from "../components/DashboardReports";
 import LeaveReports from "../components/LeaveReports";
 import PayrollReports from "../components/PayrollReports";
+import AttendanceReports from "../components/AttendanceReports";
 
 import {
   getLeaveRequests,
@@ -577,6 +578,19 @@ const Dashboard = () => {
               >
                 Payroll
               </button>
+
+              {isAdmin && (
+                <button
+                  className={`btn ${
+                    activeSection === "attendanceReports"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setActiveSection("attendanceReports")}
+                >
+                  Attendance Reports
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -925,6 +939,10 @@ const Dashboard = () => {
 
         {activeSection === "payrollReports" && isAdmin && (
           <PayrollReports token={token} employees={employees} />
+        )}
+
+        {activeSection === "attendanceReports" && isAdmin && (
+          <AttendanceReports token={token} employees={employees} />
         )}
       </div>
     </div>

@@ -24,6 +24,10 @@ const getExportData = (reportType, query, callback) => {
     return reportService.getPayrollReports(filters, callback);
   }
 
+  if (reportType === "attendance") {
+    return reportService.getAttendanceReports(filters, callback);
+  }
+
   callback(new Error("Invalid report type"));
 };
 
@@ -254,7 +258,7 @@ const getDashboardReports = (req, res) => {
 const exportCSV = (req, res) => {
   const { reportType } = req.query;
 
-  if (!["employees", "leaves", "payroll"].includes(reportType)) {
+  if (!["employees", "leaves", "payroll", "attendance"].includes(reportType)) {
     return res.status(400).json({
       message: "Invalid report type",
     });
@@ -310,7 +314,7 @@ const exportCSV = (req, res) => {
 const exportExcel = (req, res) => {
   const { reportType } = req.query;
 
-  if (!["employees", "leaves", "payroll"].includes(reportType)) {
+  if (!["employees", "leaves", "payroll", "attendance"].includes(reportType)) {
     return res.status(400).json({
       message: "Invalid report type",
     });
@@ -400,7 +404,7 @@ const exportExcel = (req, res) => {
 const exportPDF = (req, res) => {
   const { reportType } = req.query;
 
-  if (!["employees", "leaves", "payroll"].includes(reportType)) {
+  if (!["employees", "leaves", "payroll", "attendance"].includes(reportType)) {
     return res.status(400).json({
       message: "Invalid report type",
     });
@@ -477,11 +481,81 @@ const exportPDF = (req, res) => {
   });
 };
 
+const getAttendanceReports = (req, res) => {
+  const {
+    employeeId = "",
+    department = "",
+    month = "",
+    startDate = "",
+    endDate = "",
+    status = "",
+    page = "1",
+    limit = "5",
+    sortBy = "attendance_date",
+    order = "desc",
+  } = req.query;
+
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+
+  if (!Number.isInteger(pageNumber) || pageNumber < 1) {
+    return res.status(400).json({
+      message: "Page must be a positive number",
+    });
+  }
+
+  if (!Number.isInteger(limitNumber) || limitNumber < 1 || limitNumber > 100) {
+    return res.status(400).json({
+      message: "Limit must be between 1 and 100",
+    });
+  }
+
+  const allowedStatuses = ["", "Present", "Absent", "Leave", "Half Day"];
+
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({
+      message: "Invalid attendance status",
+    });
+  }
+
+  if (startDate && endDate && startDate > endDate) {
+    return res.status(400).json({
+      message: "Start date cannot be after end date",
+    });
+  }
+
+  const filters = {
+    employeeId,
+    department: department.trim(),
+    month,
+    startDate,
+    endDate,
+    status,
+    page: pageNumber,
+    limit: limitNumber,
+    sortBy,
+    order,
+  };
+
+  reportService.getAttendanceReports(filters, (error, result) => {
+    if (error) {
+      console.error("Attendance report error:", error);
+
+      return res.status(500).json({
+        message: "Failed to generate attendance report",
+      });
+    }
+
+    res.status(200).json(result);
+  });
+};
+
 module.exports = {
   getEmployeeReports,
   getLeaveReports,
   getPayrollReports,
   getDashboardReports,
+  getAttendanceReports,
   exportCSV,
   exportExcel,
   exportPDF,

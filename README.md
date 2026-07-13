@@ -209,6 +209,7 @@ employee-management-system/
 │   │
 │   └── src/
 │       ├── components/
+│       │   ├── AttendanceReports.jsx
 │       │   ├── DashboardCards.jsx
 │       │   ├── DashboardReports.jsx
 │       │   ├── EmployeeDetails.jsx

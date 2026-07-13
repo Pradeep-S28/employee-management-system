@@ -154,3 +154,10 @@ export const exportReport = (token, format, params = {}) => {
     responseType: "blob",
   });
 };
+
+export const getAttendanceReports = (token, params = {}) => {
+  return axios.get(`${REPORT_API_URL}/attendance`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};

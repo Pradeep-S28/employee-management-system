@@ -9,6 +9,7 @@ const {
   exportCSV,
   exportExcel,
   exportPDF,
+  getAttendanceReports,
 } = require("../controllers/reportController");
 
 const { verifyToken, allowAdminOnly } = require("../middleware/authMiddleware");
@@ -22,5 +23,7 @@ router.get("/export/csv", verifyToken, allowAdminOnly, exportCSV);
 router.get("/export/excel", verifyToken, allowAdminOnly, exportExcel);
 
 router.get("/export/pdf", verifyToken, allowAdminOnly, exportPDF);
+
+router.get("/attendance", verifyToken, allowAdminOnly, getAttendanceReports);
 
 module.exports = router;

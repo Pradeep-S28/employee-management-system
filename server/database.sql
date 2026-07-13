@@ -124,3 +124,41 @@ CREATE TABLE IF NOT EXISTS payslips (
 
   CONSTRAINT unique_employee_month UNIQUE (employee_id, pay_month)
 );
+
+CREATE TABLE attendance (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  attendance_date DATE NOT NULL,
+  status ENUM('Present', 'Absent', 'Leave', 'Half Day') NOT NULL,
+  check_in TIME NULL,
+  check_out TIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (employee_id)
+    REFERENCES employees(id)
+    ON DELETE CASCADE,
+
+  UNIQUE KEY unique_employee_attendance (
+    employee_id,
+    attendance_date
+  )
+);
+
+
+
+
+INSERT INTO attendance
+(employee_id, attendance_date, status, check_in, check_out)
+VALUES
+(2, '2026-07-01', 'Present', '09:30:00', '18:30:00'),
+(2, '2026-07-02', 'Present', '09:35:00', '18:25:00'),
+(2, '2026-07-03', 'Leave', NULL, NULL),
+(2, '2026-07-04', 'Absent', NULL, NULL),
+
+(5, '2026-07-01', 'Present', '09:20:00', '18:20:00'),
+(5, '2026-07-02', 'Half Day', '09:30:00', '13:30:00'),
+(5, '2026-07-03', 'Present', '09:25:00', '18:15:00'),
+(5, '2026-07-04', 'Present', '09:40:00', '18:35:00');
+
+
+SELECT * FROM attendance;
