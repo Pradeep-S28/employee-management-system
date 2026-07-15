@@ -69,6 +69,7 @@ const Login = () => {
 
         <div className="mt-4 small text-muted">
           <p className="mb-1">Admin: admin / admin123</p>
+          <p className="mb-1">Manager: manager / manager123</p>
           <p className="mb-0">Employee: employee / employee123</p>
         </div>
       </div>
