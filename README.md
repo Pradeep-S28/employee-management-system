@@ -216,6 +216,10 @@ The employee form includes:
 
 <img src="./screenshots/payroll-3.png" alt="Payroll Analytics Dashboard" width="600" />
 
+### KPI Scores
+
+<img src="./screenshots/KPI scores.png" alt="Payroll Analytics Dashboard" width="600" />
+
 ### Mobile Responsive View
 
 <img src="./screenshots/mobile%20responsive%201.png" alt="Mobile Responsive 1" width="350" />
