@@ -42,8 +42,20 @@ const allowEmployeeOnly = (req, res, next) => {
   next();
 };
 
+// task 9: managers and admins can both create/manage performance appraisals
+const allowManagerOrAdmin = (req, res, next) => {
+  if (req.user.role !== "admin" && req.user.role !== "manager") {
+    return res.status(403).json({
+      message: "Access denied. Managers and admins only.",
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   verifyToken,
   allowAdminOnly,
   allowEmployeeOnly,
+  allowManagerOrAdmin,
 };

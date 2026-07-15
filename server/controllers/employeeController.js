@@ -37,8 +37,15 @@ const getEmployeeById = (req, res) => {
 };
 
 const createEmployee = (req, res) => {
-  const { full_name, email, department, designation, date_of_joining, status } =
-    req.body;
+  const {
+    full_name,
+    email,
+    department,
+    designation,
+    date_of_joining,
+    status,
+    manager_id, // task 9: optional reporting manager (employees.id)
+  } = req.body;
 
   if (
     !full_name ||
@@ -72,13 +79,21 @@ const createEmployee = (req, res) => {
 
   const sql = `
     INSERT INTO employees
-    (full_name, email, department, designation, date_of_joining, status)
-    VALUES (?, ?, ?, ?, ?, ?)
+    (full_name, email, department, designation, date_of_joining, status, manager_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [full_name, email, department, designation, date_of_joining, status],
+    [
+      full_name,
+      email,
+      department,
+      designation,
+      date_of_joining,
+      status,
+      manager_id || null,
+    ],
     (error, result) => {
       if (error) {
         return res.status(500).json({
@@ -97,8 +112,15 @@ const createEmployee = (req, res) => {
 const updateEmployee = (req, res) => {
   const { id } = req.params;
 
-  const { full_name, email, department, designation, date_of_joining, status } =
-    req.body;
+  const {
+    full_name,
+    email,
+    department,
+    designation,
+    date_of_joining,
+    status,
+    manager_id, // task 9: optional reporting manager (employees.id)
+  } = req.body;
 
   if (
     !full_name ||
@@ -132,13 +154,22 @@ const updateEmployee = (req, res) => {
 
   const sql = `
     UPDATE employees
-    SET full_name = ?, email = ?, department = ?, designation = ?, date_of_joining = ?, status = ?
+    SET full_name = ?, email = ?, department = ?, designation = ?, date_of_joining = ?, status = ?, manager_id = ?
     WHERE id = ?
   `;
 
   db.query(
     sql,
-    [full_name, email, department, designation, date_of_joining, status, id],
+    [
+      full_name,
+      email,
+      department,
+      designation,
+      date_of_joining,
+      status,
+      manager_id || null,
+      id,
+    ],
     (error, result) => {
       if (error) {
         return res.status(500).json({
