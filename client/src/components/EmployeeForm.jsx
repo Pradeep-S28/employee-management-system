@@ -7,9 +7,15 @@ const initialForm = {
   designation: "",
   date_of_joining: "",
   status: "Active",
+  manager_id: "",
 };
 
-const EmployeeForm = ({ onSubmit, editingEmployee, onCancel }) => {
+const EmployeeForm = ({
+  onSubmit,
+  editingEmployee,
+  onCancel,
+  employees = [],
+}) => {
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
 
@@ -35,6 +41,7 @@ const EmployeeForm = ({ onSubmit, editingEmployee, onCancel }) => {
         designation: editingEmployee.designation || "",
         date_of_joining: editingEmployee.date_of_joining?.slice(0, 10) || "",
         status: editingEmployee.status || "Active",
+        manager_id: editingEmployee.manager_id || "",
       });
     } else {
       setFormData(initialForm);
@@ -202,6 +209,31 @@ const EmployeeForm = ({ onSubmit, editingEmployee, onCancel }) => {
             {errors.status && (
               <small className="text-danger">{errors.status}</small>
             )}
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label">Reporting Manager</label>
+            <select
+              name="manager_id"
+              className="form-select"
+              value={formData.manager_id}
+              onChange={handleChange}
+            >
+              <option value="">No Reporting Manager</option>
+              {employees
+                .filter(
+                  (employee) =>
+                    !editingEmployee || employee.id !== editingEmployee.id,
+                )
+                .map((employee) => (
+                  <option key={employee.id} value={employee.id}>
+                    {employee.full_name} ({employee.department})
+                  </option>
+                ))}
+            </select>
+            <small className="text-muted">
+              Used by Task 9 appraisals to scope managers to their own team.
+            </small>
           </div>
         </div>
 

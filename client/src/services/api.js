@@ -56,28 +56,56 @@ export const getLeaveSummary = (token) => {
   return axios.get(`${LEAVE_API_URL}/summary`, getAuthHeader(token));
 };
 
-// task 6 performance
+// task 9: performance appraisal module (replaces task 6 self-appraisal flow)
 
 const PERFORMANCE_API_URL = "http://localhost:5001/performance";
 
-export const submitPerformanceReview = (reviewData, token) => {
-  return axios.post(PERFORMANCE_API_URL, reviewData, getAuthHeader(token));
-};
-
-export const getPerformanceReviews = (token) => {
-  return axios.get(PERFORMANCE_API_URL, getAuthHeader(token));
-};
-
-export const updatePerformanceReview = (id, reviewData, token) => {
-  return axios.put(
-    `${PERFORMANCE_API_URL}/${id}`,
+export const createPerformanceReview = (reviewData, token) => {
+  return axios.post(
+    `${PERFORMANCE_API_URL}/review`,
     reviewData,
     getAuthHeader(token),
   );
 };
 
-export const getPerformanceSummary = (token) => {
-  return axios.get(`${PERFORMANCE_API_URL}/summary`, getAuthHeader(token));
+export const updatePerformanceReview = (id, reviewData, token) => {
+  return axios.put(
+    `${PERFORMANCE_API_URL}/review/${id}`,
+    reviewData,
+    getAuthHeader(token),
+  );
+};
+
+export const getPerformanceReviews = (token) => {
+  return axios.get(`${PERFORMANCE_API_URL}/reviews`, getAuthHeader(token));
+};
+
+export const getPerformanceReviewById = (id, token) => {
+  return axios.get(`${PERFORMANCE_API_URL}/review/${id}`, getAuthHeader(token));
+};
+
+export const addPerformanceKpi = (kpiData, token) => {
+  return axios.post(
+    `${PERFORMANCE_API_URL}/kpi`,
+    kpiData,
+    getAuthHeader(token),
+  );
+};
+
+export const updatePerformanceKpi = (id, kpiData, token) => {
+  return axios.put(
+    `${PERFORMANCE_API_URL}/kpi/${id}`,
+    kpiData,
+    getAuthHeader(token),
+  );
+};
+
+export const deletePerformanceKpi = (id, token) => {
+  return axios.delete(`${PERFORMANCE_API_URL}/kpi/${id}`, getAuthHeader(token));
+};
+
+export const getPerformanceDashboard = (token) => {
+  return axios.get(`${PERFORMANCE_API_URL}/dashboard`, getAuthHeader(token));
 };
 
 // task 7 payroll

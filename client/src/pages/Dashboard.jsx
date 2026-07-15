@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import LeaveForm from "../components/LeaveForm";
 import LeaveTable from "../components/LeaveTable";
 
-// task 6
-import PerformanceForm from "../components/PerformanceForm";
-import PerformanceTable from "../components/PerformanceTable";
-import PerformanceCharts from "../components/PerformanceCharts";
+// task 9: performance appraisal module (replaces task 6
+import PerformanceReviewForm from "../components/PerformanceReviewForm";
+import PerformanceReviewTable from "../components/PerformanceReviewTable";
+import PerformanceDashboard from "../components/PerformanceDashboard";
 
 // task 7 payroll
 import SalaryForm from "../components/SalaryForm";
@@ -27,7 +27,7 @@ import {
   updateLeaveStatus,
   getLeaveSummary,
   getPerformanceReviews,
-  getPerformanceSummary,
+  getPerformanceDashboard,
 } from "../services/api";
 
 import DashboardCards from "../components/DashboardCards";
@@ -53,6 +53,8 @@ import {
 const Dashboard = () => {
   const { token, user, logout } = useAuth();
   const isAdmin = user?.role === "admin";
+  const isManager = user?.role === "manager";
+  const isReviewer = isAdmin || isManager;
 
   const [activeSection, setActiveSection] = useState("overview");
 
@@ -87,14 +89,12 @@ const Dashboard = () => {
   });
   const [reportLoading, setReportLoading] = useState(false);
 
-  // task 6 performance
+  // task 9 performance appraisals
   const [performanceReviews, setPerformanceReviews] = useState([]);
-  const [performanceSummary, setPerformanceSummary] = useState({
-    avgRatingByDepartment: [],
-    ratingDistribution: [],
-    reviewTrend: [],
-  });
+  const [performanceDashboard, setPerformanceDashboard] = useState(null);
   const [performanceLoading, setPerformanceLoading] = useState(false);
+  const [performanceDashboardLoading, setPerformanceDashboardLoading] =
+    useState(false);
   const [performanceError, setPerformanceError] = useState("");
 
   // task 7 payroll
@@ -164,18 +164,17 @@ const Dashboard = () => {
     }
   };
 
-  const fetchPerformanceSummary = async () => {
-    if (!isAdmin) return;
+  const fetchPerformanceDashboard = async () => {
+    if (!isReviewer) return;
 
     try {
-      const response = await getPerformanceSummary(token);
-      setPerformanceSummary(response.data);
+      setPerformanceDashboardLoading(true);
+      const response = await getPerformanceDashboard(token);
+      setPerformanceDashboard(response.data);
     } catch (error) {
-      setPerformanceSummary({
-        avgRatingByDepartment: [],
-        ratingDistribution: [],
-        reviewTrend: [],
-      });
+      setPerformanceDashboard(null);
+    } finally {
+      setPerformanceDashboardLoading(false);
     }
   };
 
@@ -191,7 +190,7 @@ const Dashboard = () => {
 
   const handlePerformanceRefresh = () => {
     fetchPerformanceReviews();
-    fetchPerformanceSummary();
+    fetchPerformanceDashboard();
   };
 
   useEffect(() => {
@@ -200,8 +199,8 @@ const Dashboard = () => {
     fetchLeaveSummary();
     fetchPerformanceReviews();
 
-    if (user?.role === "admin") {
-      fetchPerformanceSummary();
+    if (user?.role === "admin" || user?.role === "manager") {
+      fetchPerformanceDashboard();
     }
   }, [token, user?.role]);
 
@@ -663,13 +662,27 @@ const Dashboard = () => {
               <div className="alert alert-danger">{performanceError}</div>
             )}
 
-            {isAdmin && <PerformanceCharts summary={performanceSummary} />}
-
-            {!isAdmin && (
-              <PerformanceForm
-                token={token}
-                onReviewSubmitted={handlePerformanceRefresh}
+            {isReviewer && (
+              <PerformanceDashboard
+                dashboard={performanceDashboard}
+                loading={performanceDashboardLoading}
               />
+            )}
+
+            {isReviewer && (
+              <PerformanceReviewForm
+                employees={employees}
+                user={user}
+                token={token}
+                onReviewCreated={handlePerformanceRefresh}
+              />
+            )}
+
+            {!isReviewer && (
+              <div className="alert alert-info">
+                Your manager will create and submit your performance appraisals
+                here. Completed reviews will appear below.
+              </div>
             )}
 
             {performanceLoading ? (
@@ -678,11 +691,11 @@ const Dashboard = () => {
                 <p className="mt-2">Loading performance reviews...</p>
               </div>
             ) : (
-              <PerformanceTable
+              <PerformanceReviewTable
                 reviews={performanceReviews}
                 role={user?.role}
                 token={token}
-                onReviewUpdated={handlePerformanceRefresh}
+                onReviewChanged={handlePerformanceRefresh}
               />
             )}
           </div>
@@ -839,6 +852,7 @@ const Dashboard = () => {
               <EmployeeForm
                 onSubmit={handleSubmit}
                 editingEmployee={editingEmployee}
+                employees={employees}
                 onCancel={() => {
                   setShowForm(false);
                   setEditingEmployee(null);
