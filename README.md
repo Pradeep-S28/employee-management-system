@@ -67,7 +67,7 @@ The project includes:
 
 ### Role-Based Access Control
 
-Two roles are implemented:
+Three roles are implemented (the **Manager** role was added in Task 9):
 
 #### Admin
 
@@ -79,9 +79,20 @@ Admin can:
 - Delete employees
 - Search, filter, sort, and paginate records
 - Approve or reject employee leave requests
-- Review employee performance appraisals
+- Create, update, and view all performance appraisals and KPIs
 - Set and update employee salary structures
 - Generate and manage employee payslips
+
+#### Manager (Task 9)
+
+Manager can:
+
+- Login to the system
+- View employee records
+- Create and update performance reviews and KPIs, but only for employees
+  who report to them (`employees.manager_id`)
+- View the performance dashboard (cards + charts)
+- Submit leave requests and track their own status, same as an employee
 
 #### Employee
 
@@ -91,7 +102,7 @@ Employee can:
 - View employee records
 - Search, filter, sort, and paginate records
 - Submit leave requests and track their status
-- Submit self-appraisals and view review history
+- View their own completed performance reviews and KPI feedback
 - View their own salary structure and payslips
 
 Employee users cannot add, edit, or delete employee records.
@@ -238,9 +249,11 @@ employee-management-system/
 │       │   ├── PayrollReports.jsx
 │       │   ├── PayslipGenerator.jsx
 │       │   ├── PayslipTable.jsx
-│       │   ├── PerformanceCharts.jsx
-│       │   ├── PerformanceForm.jsx
-│       │   ├── PerformanceTable.jsx
+│       │   ├── PerformanceReviewForm.jsx
+│       │   ├── PerformanceReviewTable.jsx
+│       │   ├── PerformanceDashboard.jsx
+│       │   ├── KPIForm.jsx
+│       │   ├── RatingChart.jsx
 │       │   ├── ReportCharts.jsx
 │       │   └── SalaryForm.jsx
 │       │
@@ -282,7 +295,8 @@ employee-management-system/
 │   │   └── reportRoutes.js
 │   │
 │   ├── services/
-│   │   └── reportServices.js
+│   │   ├── reportServices.js
+│   │   └── performanceService.js
 │   │
 │   ├── database.sql
 │   ├── server.js
@@ -330,47 +344,129 @@ employee-management-system/
 
 ## Performance Management & Appraisal Module
 
-As part of Task 6, a Performance Management & Appraisal Module was added to the existing Employee Management System.
+> **Superseded by Task 9.** The Task 6 self-appraisal flow described below has
+> been replaced by the manager-driven, KPI-based appraisal module documented
+> in the [Task 9 section](#task-9-employee-performance-management--appraisal-module)
+> further down. It's kept here only as a changelog of what Task 6 originally
+> added.
 
-### Features Added
+As part of Task 6, employees could submit a self-appraisal (review period,
+self rating, self comments) and admins could add a manager rating and
+feedback. That flow, and its `PerformanceForm.jsx` / `PerformanceTable.jsx` /
+`PerformanceCharts.jsx` components, no longer exist in the codebase — see
+Task 9 for the current implementation.
 
-- Employees can submit self-appraisals with review period, self rating, and self comments.
-- Employees can view their own performance review history.
-- Admin can view all submitted performance reviews.
-- Admin can provide manager rating and manager feedback.
-- Review status updates from `Submitted` to `Reviewed` after admin review.
-- Performance dashboard includes visual reports using Recharts.
-- Added KPI cards for reviewed performance data.
-- Added bar chart for average rating by department.
-- Added pie chart for rating distribution.
-- Added trend chart for performance review periods.
-- APIs are protected using JWT authentication.
-- Role-based access control is applied:
-  - Employee can submit and view own reviews.
-  - Admin can review, rate, and view performance summaries.
-- Frontend is organized using reusable components:
-  - `PerformanceForm.jsx`
-  - `PerformanceTable.jsx`
-  - `PerformanceCharts.jsx`
-- Dashboard layout was improved using section buttons to avoid showing all modules at once.
+---
+
+## Task 9: Employee Performance Management & Appraisal Module
+
+Task 9 replaces the Task 6 self-appraisal flow with a manager-driven,
+KPI-based appraisal workflow, and introduces a **manager** role in addition
+to the existing admin/employee roles.
+
+### Roles
+
+| Role              | What they can do in this module                                                                                                                       |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Admin**         | Full access — create/update reviews and KPIs for any employee, view the dashboard, view all records.                                                  |
+| **Manager** (new) | Create and update reviews and KPIs, but only for employees whose `manager_id` points back to them (their own team). Sees the same dashboard as admin. |
+| **Employee**      | Read-only. Can only view their own reviews, and only once a review's status is `Submitted` or `Completed`.                                            |
+
+Reporting-manager relationships live on `employees.manager_id` (self
+referencing FK). Admin assigns this from the **Reporting Manager** field on
+the Add/Edit Employee form.
+
+There's no in-app screen for creating login accounts (this project has
+always added rows to `users` directly), so to test the manager role, either
+use the seeded `manager` / `manager123` account or add another one the same
+way — see the SQL comments in `server/database.sql`.
+
+### Database Schema
+
+- **`performance_reviews`** (reworked): `id`, `employee_id` (FK), `manager_id`
+  (FK, nullable), `review_period`, `overall_rating` (1–5), `overall_feedback`,
+  `review_status` (`Draft` / `Submitted` / `Completed`), `submitted_on`,
+  `created_at`. Unique on `(employee_id, review_period)` to block duplicate
+  reviews for the same period.
+- **`performance_kpis`** (new): `id`, `review_id` (FK, cascades on delete),
+  `kpi_name`, `kpi_score` (1–5), `remarks`, `created_at`.
+- **`employees.manager_id`** (new): self-referencing FK used to scope a
+  manager to their team.
+- **`users.role`**: widened to `ENUM('admin', 'manager', 'employee')`.
+
+### API Documentation
+
+All routes are under `/performance` and require a Bearer token.
+
+| Method | Route                     | Who            | Description                                                                                                                    |
+| ------ | ------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| POST   | `/performance/review`     | Manager, Admin | Create a review in `Draft` status for an employee + review period.                                                             |
+| PUT    | `/performance/review/:id` | Manager, Admin | Update overall rating/feedback, or submit the review (`review_status: "Submitted"`). Only allowed while the review is `Draft`. |
+| GET    | `/performance/reviews`    | All            | Admin sees all reviews; manager sees reviews they created; employee sees their own `Submitted`/`Completed` reviews.            |
+| GET    | `/performance/review/:id` | All            | Single review with its KPIs, same visibility rules as above.                                                                   |
+| POST   | `/performance/kpi`        | Manager, Admin | Add a KPI to a `Draft` review.                                                                                                 |
+| PUT    | `/performance/kpi/:id`    | Manager, Admin | Edit a KPI on a `Draft` review.                                                                                                |
+| DELETE | `/performance/kpi/:id`    | Manager, Admin | Remove a KPI from a `Draft` review.                                                                                            |
+| GET    | `/performance/dashboard`  | Manager, Admin | Summary cards + chart data (see below).                                                                                        |
+
+### Validation & Business Rules
+
+- KPI scores and the overall rating must be between 1 and 5.
+- A review needs at least **3 KPIs** before it can be submitted.
+- Once a review is `Submitted`, its fields and KPIs can no longer be edited
+  or deleted.
+- Duplicate reviews for the same employee + review period are rejected
+  (both at the API level and with a DB unique constraint).
+- A manager can only create/update reviews and KPIs for employees in their
+  own team (`employees.manager_id`).
+
+### Dashboard
+
+- Cards: Total Reviews, Pending Reviews, Completed Reviews, Average Rating.
+- Charts (Recharts, via a shared `RatingChart.jsx` component): Department-wise
+  Average Rating (bar), Rating Distribution (pie), Monthly Completed Reviews
+  (line), Top Performing Departments (bar).
+
+### Frontend Components
+
+- `PerformanceReviewForm.jsx` — manager/admin picks an employee + review
+  period to start a Draft review.
+- `PerformanceReviewTable.jsx` — role-aware list of reviews; clicking a row
+  opens KPI management (for reviewers) or a read-only view (for employees).
+- `KPIForm.jsx` — adds a single KPI to a Draft review.
+- `PerformanceDashboard.jsx` — the summary cards and charts described above.
+- `RatingChart.jsx` — a small reusable chart card (bar/pie/line) shared by
+  all four dashboard charts.
 
 ### Performance Workflow
 
 ```text
-Employee Login
+Manager/Admin Login
      ↓
-Submit Self-Appraisal
+Create Review (Draft) for an employee + review period
      ↓
-Status: Submitted
+Add at least 3 KPIs, set overall rating & feedback
      ↓
-Admin Login
+Submit Review → Status: Submitted (locked, no further edits)
      ↓
-Manager Review & Rating
+Employee Login → views the completed review and its KPIs
      ↓
-Status: Reviewed
-     ↓
-Dashboard Charts Updated
+Dashboard Cards & Charts Updated
 ```
+
+### Setup Instructions (Task 9 only)
+
+1. Apply the Task 9 SQL changes — see the `--task 9` block in
+   `server/database.sql` (also copied into `Postman` folder notes). Quickest
+   way, from the `server/` folder:
+   ```bash
+   mysql -u root -p employee_management < database.sql
+   ```
+2. Restart the server (`npm run dev` inside `server/`) so the new routes in
+   `performanceRoutes.js` are picked up.
+3. Log in as `manager` / `manager123` (or `admin` / `admin123`) to try the
+   new "Start a Performance Review" form and dashboard under the
+   **Performance** tab.
 
 ## Payroll Management Module
 
