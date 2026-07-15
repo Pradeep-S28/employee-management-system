@@ -162,3 +162,85 @@ VALUES
 
 
 SELECT * FROM attendance;
+
+-- task 9
+
+ALTER TABLE users
+  MODIFY COLUMN role ENUM('admin', 'manager', 'employee') NOT NULL DEFAULT 'employee';
+
+  ALTER TABLE employees
+  ADD COLUMN manager_id INT NULL AFTER designation;
+
+ALTER TABLE employees
+  ADD CONSTRAINT fk_employee_manager
+  FOREIGN KEY (manager_id)
+  REFERENCES employees(id)
+  ON DELETE SET NULL;
+
+  ALTER TABLE performance_reviews
+  DROP FOREIGN KEY fk_performance_employee;
+
+ALTER TABLE performance_reviews
+  DROP CHECK chk_self_rating,
+  DROP CHECK chk_manager_rating;
+
+ALTER TABLE performance_reviews
+  DROP COLUMN self_rating,
+  DROP COLUMN self_comments,
+  DROP COLUMN manager_rating,
+  DROP COLUMN manager_feedback,
+  DROP COLUMN status,
+  DROP COLUMN reviewed_on;
+
+ALTER TABLE performance_reviews
+  ADD COLUMN manager_id INT NULL AFTER employee_id,
+  ADD COLUMN overall_rating INT NULL,
+  ADD COLUMN overall_feedback TEXT NULL,
+  ADD COLUMN review_status ENUM('Draft', 'Submitted', 'Completed') NOT NULL DEFAULT 'Draft',
+  ADD COLUMN submitted_on TIMESTAMP NULL;
+
+ALTER TABLE performance_reviews
+  ADD CONSTRAINT fk_performance_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+  ADD CONSTRAINT fk_performance_manager
+  FOREIGN KEY (manager_id)
+  REFERENCES employees(id)
+  ON DELETE SET NULL;
+
+ALTER TABLE performance_reviews
+  ADD CONSTRAINT chk_overall_rating
+  CHECK (overall_rating IS NULL OR overall_rating BETWEEN 1 AND 5);
+
+ALTER TABLE performance_reviews
+  ADD CONSTRAINT unique_employee_review_period
+  UNIQUE (employee_id, review_period);
+
+  CREATE TABLE IF NOT EXISTS performance_kpis (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  review_id INT NOT NULL,
+  kpi_name VARCHAR(150) NOT NULL,
+  kpi_score INT NOT NULL,
+  remarks TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_kpi_review
+  FOREIGN KEY (review_id)
+  REFERENCES performance_reviews(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT chk_kpi_score
+  CHECK (kpi_score BETWEEN 1 AND 5)
+);
+
+-- demo data
+UPDATE employees SET manager_id = 2 WHERE id = 5;
+
+INSERT INTO users (username, password, role, employee_id)
+VALUES (
+  'manager',
+  '$2b$10$imwe3TO8h/jZnDOXs2QkCOWfSf2BQ8bYgtnFukpvEZ3kS07Gm.I9a',
+  'manager',
+  2
+);
