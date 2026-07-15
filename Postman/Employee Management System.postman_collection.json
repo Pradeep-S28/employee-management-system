@@ -30,14 +30,9 @@
         "url": {
           "raw": "http://localhost:5001/employees/:id",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "5001",
-          "path": [
-            "employees",
-            ":id"
-          ],
+          "path": ["employees", ":id"],
           "variable": [
             {
               "key": "id",
@@ -65,14 +60,9 @@
         "url": {
           "raw": "http://localhost:5001/employees/:id",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "5001",
-          "path": [
-            "employees",
-            ":id"
-          ],
+          "path": ["employees", ":id"],
           "variable": [
             {
               "key": "id",
@@ -91,14 +81,9 @@
         "url": {
           "raw": "http://localhost:5001/employees/:id",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "5001",
-          "path": [
-            "employees",
-            ":id"
-          ],
+          "path": ["employees", ":id"],
           "variable": [
             {
               "key": "id",
@@ -136,14 +121,9 @@
         "url": {
           "raw": "http://localhost:5001/auth/login",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "5001",
-          "path": [
-            "auth",
-            "login"
-          ]
+          "path": ["auth", "login"]
         }
       },
       "response": []
@@ -191,15 +171,9 @@
         "url": {
           "raw": "http://localhost:5001/leaves/3/status",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
+          "host": ["localhost"],
           "port": "5001",
-          "path": [
-            "leaves",
-            "3",
-            "status"
-          ]
+          "path": ["leaves", "3", "status"]
         }
       },
       "response": []
@@ -211,6 +185,236 @@
         "header": []
       },
       "response": []
+    },
+    {
+      "name": "Task 9 - Performance Appraisal",
+      "item": [
+        {
+          "name": "task9 - manager login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"manager\",\n  \"password\": \"manager123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - create performance review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/review",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "review"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": 5,\n  \"review_period\": \"Q3 2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - get performance reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/reviews",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - get performance review by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/review/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "review", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - add KPI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/kpi",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "kpi"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review_id\": 1,\n  \"kpi_name\": \"Code Quality\",\n  \"kpi_score\": 4,\n  \"remarks\": \"Solid, well-tested PRs\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - update KPI",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/kpi/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "kpi", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kpi_score\": 5,\n  \"remarks\": \"Improved further\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - delete KPI",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/kpi/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "kpi", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - submit performance review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/review/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "review", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"overall_rating\": 4,\n  \"overall_feedback\": \"Strong quarter overall.\",\n  \"review_status\": \"Submitted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task9 - performance dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/performance/dashboard",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["performance", "dashboard"]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
