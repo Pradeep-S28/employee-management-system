@@ -9,6 +9,7 @@ const leaveRoutes = require("./routes/leaveRoutes");
 const performanceRoutes = require("./routes/performanceRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const assetRoutes = require("./routes/assetRoutes");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/employees", employeeRoutes);
 app.use("/performance", performanceRoutes);
 app.use("/payroll", payrollRoutes);
 app.use("/reports", reportRoutes);
+app.use("/assets", assetRoutes);
 
 const PORT = process.env.PORT || 5000;
 

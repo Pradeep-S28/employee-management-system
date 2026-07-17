@@ -292,7 +292,6 @@ CREATE TABLE IF NOT EXISTS asset_assignments (
   CHECK (expected_return_date IS NULL OR expected_return_date >= assigned_date)
 );
 
-
 INSERT INTO assets
 (asset_name, asset_category, asset_code, brand, model, purchase_date, purchase_cost, warranty_expiry_date, asset_status)
 VALUES
@@ -311,18 +310,3 @@ VALUES
 
 SELECT * FROM assets;
 SELECT * FROM asset_assignments;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
