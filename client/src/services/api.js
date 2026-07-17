@@ -189,3 +189,54 @@ export const getAttendanceReports = (token, params = {}) => {
     params,
   });
 };
+
+// task 10 asset management
+
+const ASSET_API_URL = "http://localhost:5001/assets";
+
+export const getAssets = (token, params = {}) => {
+  return axios.get(ASSET_API_URL, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const getAssetById = (id, token) => {
+  return axios.get(`${ASSET_API_URL}/${id}`, getAuthHeader(token));
+};
+
+export const addAsset = (assetData, token) => {
+  return axios.post(ASSET_API_URL, assetData, getAuthHeader(token));
+};
+
+export const updateAsset = (id, assetData, token) => {
+  return axios.put(`${ASSET_API_URL}/${id}`, assetData, getAuthHeader(token));
+};
+
+export const deleteAsset = (id, token) => {
+  return axios.delete(`${ASSET_API_URL}/${id}`, getAuthHeader(token));
+};
+
+export const assignAsset = (assignmentData, token) => {
+  return axios.post(
+    `${ASSET_API_URL}/assign`,
+    assignmentData,
+    getAuthHeader(token),
+  );
+};
+
+export const returnAsset = (returnData, token) => {
+  return axios.post(
+    `${ASSET_API_URL}/return`,
+    returnData,
+    getAuthHeader(token),
+  );
+};
+
+export const getAssetAssignments = (token) => {
+  return axios.get(`${ASSET_API_URL}/assignments`, getAuthHeader(token));
+};
+
+export const getAssetDashboard = (token) => {
+  return axios.get(`${ASSET_API_URL}/dashboard`, getAuthHeader(token));
+};
