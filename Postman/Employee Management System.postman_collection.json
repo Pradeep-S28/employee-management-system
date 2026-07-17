@@ -415,6 +415,320 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Task 10 - Asset Management",
+      "item": [
+        {
+          "name": "task10 - admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - create asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"MacBook Pro 14\",\n  \"asset_category\": \"Laptop\",\n  \"asset_code\": \"AST-LAP-010\",\n  \"brand\": \"Apple\",\n  \"model\": \"MacBook Pro 14 M3\",\n  \"purchase_date\": \"2026-01-10\",\n  \"purchase_cost\": 185000.0,\n  \"warranty_expiry_date\": \"2028-01-09\",\n  \"asset_status\": \"Available\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - get all assets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - search/filter assets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets?search=laptop&category=Laptop&status=Available",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets?search=laptop&category=Laptop&status=Available"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - get single asset",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - update asset",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_status\": \"Under Maintenance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - delete asset",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets/4",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets", "4"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - assign asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets/assign",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets", "assign"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_id\": 4,\n  \"employee_id\": 5,\n  \"assigned_date\": \"2026-07-17\",\n  \"expected_return_date\": \"2026-12-31\",\n  \"remarks\": \"Issued for new project\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - return asset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets/return",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets", "return"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignment_id\": 1,\n  \"actual_return_date\": \"2026-07-17\",\n  \"assignment_status\": \"Returned\",\n  \"remarks\": \"Returned in good condition\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - get assignment history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets/assignments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets", "assignments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task10 - get asset dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/assets/dashboard",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["assets", "dashboard"]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
