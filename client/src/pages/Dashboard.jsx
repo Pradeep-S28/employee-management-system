@@ -22,12 +22,28 @@ import LeaveReports from "../components/LeaveReports";
 import PayrollReports from "../components/PayrollReports";
 import AttendanceReports from "../components/AttendanceReports";
 
+// task 10 asset management
+import AssetForm from "../components/AssetForm";
+import AssetTable from "../components/AssetTable";
+import AssetAssignment, {
+  AssignAssetForm,
+} from "../components/AssetAssignment";
+import AssetDashboard from "../components/AssetDashboard";
+
 import {
   getLeaveRequests,
   updateLeaveStatus,
   getLeaveSummary,
   getPerformanceReviews,
   getPerformanceDashboard,
+  getAssets,
+  addAsset,
+  updateAsset,
+  deleteAsset,
+  assignAsset,
+  returnAsset,
+  getAssetAssignments,
+  getAssetDashboard,
 } from "../services/api";
 
 import DashboardCards from "../components/DashboardCards";
@@ -109,6 +125,24 @@ const Dashboard = () => {
   const [employeeSalary, setEmployeeSalary] = useState(null);
   const [payrollSummary, setPayrollSummary] = useState(null);
   const [payrollSummaryLoading, setPayrollSummaryLoading] = useState(false);
+
+  // task 10 asset management
+  const [assets, setAssets] = useState([]);
+  const [assetsLoading, setAssetsLoading] = useState(false);
+  const [assetError, setAssetError] = useState("");
+  const [assetMessage, setAssetMessage] = useState("");
+  const [editingAsset, setEditingAsset] = useState(null);
+  const [showAssetForm, setShowAssetForm] = useState(false);
+  const [assetSearchText, setAssetSearchText] = useState("");
+  const [assetCategoryFilter, setAssetCategoryFilter] = useState("");
+  const [assetStatusFilter, setAssetStatusFilter] = useState("");
+  const [assetToAssign, setAssetToAssign] = useState(null);
+
+  const [assetAssignments, setAssetAssignments] = useState([]);
+  const [assetAssignmentsLoading, setAssetAssignmentsLoading] = useState(false);
+
+  const [assetDashboard, setAssetDashboard] = useState(null);
+  const [assetDashboardLoading, setAssetDashboardLoading] = useState(false);
 
   const fetchEmployees = async () => {
     try {
@@ -346,6 +380,146 @@ const Dashboard = () => {
     }
   };
 
+  // task 10 asset management
+
+  const fetchAssets = async () => {
+    try {
+      setAssetsLoading(true);
+      setAssetError("");
+
+      const params = {};
+      if (assetSearchText) params.search = assetSearchText;
+      if (assetCategoryFilter) params.category = assetCategoryFilter;
+      if (assetStatusFilter) params.status = assetStatusFilter;
+
+      const response = await getAssets(token, params);
+      setAssets(response.data);
+    } catch (error) {
+      setAssetError(error.response?.data?.message || "Unable to fetch assets.");
+    } finally {
+      setAssetsLoading(false);
+    }
+  };
+
+  const fetchAssetAssignments = async () => {
+    try {
+      setAssetAssignmentsLoading(true);
+      const response = await getAssetAssignments(token);
+      setAssetAssignments(response.data);
+    } catch (error) {
+      setAssetError(
+        error.response?.data?.message || "Unable to fetch assignment history.",
+      );
+    } finally {
+      setAssetAssignmentsLoading(false);
+    }
+  };
+
+  const fetchAssetDashboard = async () => {
+    if (!isAdmin) return;
+
+    try {
+      setAssetDashboardLoading(true);
+      const response = await getAssetDashboard(token);
+      setAssetDashboard(response.data);
+    } catch (error) {
+      setAssetDashboard(null);
+    } finally {
+      setAssetDashboardLoading(false);
+    }
+  };
+
+  const refreshAssetSection = () => {
+    if (isAdmin) fetchAssets();
+    fetchAssetAssignments();
+    fetchAssetDashboard();
+  };
+
+  const handleAssetSubmit = async (assetData) => {
+    try {
+      setAssetError("");
+      setAssetMessage("");
+
+      if (editingAsset) {
+        await updateAsset(editingAsset.id, assetData, token);
+        setAssetMessage("Asset updated successfully.");
+        setEditingAsset(null);
+      } else {
+        await addAsset(assetData, token);
+        setAssetMessage("Asset added successfully.");
+      }
+
+      setShowAssetForm(false);
+      refreshAssetSection();
+    } catch (error) {
+      setAssetError(error.response?.data?.message || "Failed to save asset.");
+    }
+  };
+
+  const handleAssetDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this asset?",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      setAssetError("");
+      await deleteAsset(id, token);
+      setAssetMessage("Asset deleted successfully.");
+      refreshAssetSection();
+    } catch (error) {
+      setAssetError(error.response?.data?.message || "Failed to delete asset.");
+    }
+  };
+
+  const handleAssetAssign = async (assignmentData) => {
+    try {
+      setAssetError("");
+      await assignAsset(assignmentData, token);
+      setAssetMessage("Asset assigned successfully.");
+      setAssetToAssign(null);
+      refreshAssetSection();
+    } catch (error) {
+      setAssetError(error.response?.data?.message || "Failed to assign asset.");
+    }
+  };
+
+  const handleAssetReturn = async (assignment, assignment_status) => {
+    const confirmMessage =
+      assignment_status === "Lost"
+        ? "Mark this asset as lost?"
+        : "Confirm this asset has been returned?";
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      setAssetError("");
+      await returnAsset(
+        {
+          assignment_id: assignment.id,
+          actual_return_date: new Date().toISOString().slice(0, 10),
+          assignment_status,
+        },
+        token,
+      );
+      setAssetMessage(
+        assignment_status === "Lost"
+          ? "Asset marked as lost."
+          : "Asset returned successfully.",
+      );
+      refreshAssetSection();
+    } catch (error) {
+      setAssetError(
+        error.response?.data?.message || "Failed to process return.",
+      );
+    }
+  };
+
+  const assetCategories = useMemo(() => {
+    return [...new Set(assets.map((asset) => asset.asset_category))];
+  }, [assets]);
+
   const handleSubmit = async (employeeData) => {
     try {
       if (editingEmployee) {
@@ -441,6 +615,13 @@ const Dashboard = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchText, statusFilter, departmentFilter, sortOrder]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchAssets();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assetSearchText, assetCategoryFilter, assetStatusFilter, isAdmin]);
 
   return (
     <div className="app-bg">
@@ -590,6 +771,22 @@ const Dashboard = () => {
                   Attendance Reports
                 </button>
               )}
+
+              <button
+                className={`btn ${
+                  activeSection === "assets"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => {
+                  setActiveSection("assets");
+                  setAssetMessage("");
+                  setAssetError("");
+                  refreshAssetSection();
+                }}
+              >
+                Assets
+              </button>
             </div>
           </div>
         </div>
@@ -957,6 +1154,112 @@ const Dashboard = () => {
 
         {activeSection === "attendanceReports" && isAdmin && (
           <AttendanceReports token={token} employees={employees} />
+        )}
+
+        {activeSection === "assets" && (
+          <div className="mb-4">
+            {assetMessage && (
+              <div className="alert alert-success">{assetMessage}</div>
+            )}
+
+            {assetError && (
+              <div className="alert alert-danger">{assetError}</div>
+            )}
+
+            {isAdmin && (
+              <AssetDashboard
+                dashboard={assetDashboard}
+                loading={assetDashboardLoading}
+              />
+            )}
+
+            {isAdmin && (
+              <>
+                <div className="mb-3">
+                  <button
+                    className="btn btn-success"
+                    onClick={() => {
+                      setShowAssetForm(true);
+                      setEditingAsset(null);
+                    }}
+                  >
+                    Add Asset
+                  </button>
+                </div>
+
+                {showAssetForm && (
+                  <AssetForm
+                    onSubmit={handleAssetSubmit}
+                    editingAsset={editingAsset}
+                    onCancel={() => {
+                      setShowAssetForm(false);
+                      setEditingAsset(null);
+                    }}
+                  />
+                )}
+
+                {assetToAssign && (
+                  <AssignAssetForm
+                    asset={assetToAssign}
+                    employees={employees}
+                    onSubmit={handleAssetAssign}
+                    onCancel={() => setAssetToAssign(null)}
+                  />
+                )}
+
+                {assetsLoading ? (
+                  <div className="text-center my-5">
+                    <div className="spinner-border text-primary"></div>
+                    <p className="mt-2">Loading assets...</p>
+                  </div>
+                ) : (
+                  <AssetTable
+                    assets={assets}
+                    isAdmin={isAdmin}
+                    onEdit={(asset) => {
+                      setEditingAsset(asset);
+                      setShowAssetForm(true);
+                    }}
+                    onDelete={handleAssetDelete}
+                    onAssign={(asset) => {
+                      setAssetToAssign(asset);
+                      setShowAssetForm(false);
+                    }}
+                    searchText={assetSearchText}
+                    setSearchText={setAssetSearchText}
+                    categoryFilter={assetCategoryFilter}
+                    setCategoryFilter={setAssetCategoryFilter}
+                    statusFilter={assetStatusFilter}
+                    setStatusFilter={setAssetStatusFilter}
+                    categories={assetCategories}
+                  />
+                )}
+              </>
+            )}
+
+            {!isAdmin && (
+              <div className="alert alert-info">
+                Below is the history of company assets assigned to you,
+                including expected return dates.
+              </div>
+            )}
+
+            <h5 className="mt-4 mb-3">
+              {isAdmin ? "All Assignment History" : "My Asset History"}
+            </h5>
+
+            {assetAssignmentsLoading ? (
+              <div className="text-center my-4">
+                Loading assignment history...
+              </div>
+            ) : (
+              <AssetAssignment
+                assignments={assetAssignments}
+                isAdmin={isAdmin}
+                onReturn={handleAssetReturn}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>
