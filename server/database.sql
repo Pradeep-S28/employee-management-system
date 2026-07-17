@@ -244,3 +244,85 @@ VALUES (
   'manager',
   2
 );
+
+-- Task 10: Employee Asset Management Module
+
+USE employee_management;
+
+CREATE TABLE IF NOT EXISTS assets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  asset_name VARCHAR(150) NOT NULL,
+  asset_category VARCHAR(100) NOT NULL,
+  asset_code VARCHAR(50) NOT NULL UNIQUE,
+  brand VARCHAR(100) NULL,
+  model VARCHAR(100) NULL,
+  purchase_date DATE NOT NULL,
+  purchase_cost DECIMAL(10,2) NOT NULL DEFAULT 0,
+  warranty_expiry_date DATE NULL,
+  asset_status ENUM('Available', 'Assigned', 'Under Maintenance', 'Retired')
+    NOT NULL DEFAULT 'Available',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT chk_purchase_cost CHECK (purchase_cost >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS asset_assignments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  asset_id INT NOT NULL,
+  employee_id INT NOT NULL,
+  assigned_date DATE NOT NULL,
+  expected_return_date DATE NULL,
+  actual_return_date DATE NULL,
+  assignment_status ENUM('Assigned', 'Returned', 'Lost')
+    NOT NULL DEFAULT 'Assigned',
+  remarks TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_assignment_asset
+  FOREIGN KEY (asset_id)
+  REFERENCES assets(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT fk_assignment_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT chk_return_after_assigned
+  CHECK (expected_return_date IS NULL OR expected_return_date >= assigned_date)
+);
+
+
+INSERT INTO assets
+(asset_name, asset_category, asset_code, brand, model, purchase_date, purchase_cost, warranty_expiry_date, asset_status)
+VALUES
+('Dell Latitude 5440', 'Laptop', 'AST-LAP-001', 'Dell', 'Latitude 5440', '2024-01-15', 68000.00, '2027-01-14', 'Assigned'),
+('iPhone 14', 'Mobile', 'AST-MOB-001', 'Apple', 'iPhone 14', '2024-03-10', 65000.00, '2026-03-09', 'Assigned'),
+('HP LaserJet Pro', 'Printer', 'AST-PRN-001', 'HP', 'LaserJet Pro M15w', '2023-06-01', 12000.00, '2025-05-31', 'Under Maintenance'),
+('Logitech MX Master 3', 'Accessory', 'AST-ACC-001', 'Logitech', 'MX Master 3', '2024-05-20', 8500.00, '2026-05-19', 'Available'),
+('Dell UltraSharp Monitor', 'Monitor', 'AST-MON-001', 'Dell', 'U2723QE', '2022-11-05', 32000.00, '2024-11-04', 'Retired');
+
+INSERT INTO asset_assignments
+(asset_id, employee_id, assigned_date, expected_return_date, assignment_status, remarks)
+VALUES
+(1, 5, '2024-02-01', NULL, 'Assigned', 'Primary work laptop'),
+(2, 2, '2024-03-15', NULL, 'Assigned', 'Company mobile for HR ops');
+
+
+SELECT * FROM assets;
+SELECT * FROM asset_assignments;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
