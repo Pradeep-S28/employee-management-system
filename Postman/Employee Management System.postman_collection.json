@@ -729,6 +729,341 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Task 11 - Help Desk & Service Requests",
+      "item": [
+        {
+          "name": "task11 - employee login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"employee\",\n  \"password\": \"employee123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - create service request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/request",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "request"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"IT\",\n  \"subject\": \"VPN not connecting\",\n  \"description\": \"VPN client fails to connect since this morning.\",\n  \"priority\": \"High\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - get my/all requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/requests",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - filter requests (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/requests?category=IT&priority=High&status=Open",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": [
+                "helpdesk",
+                "requests?category=IT&priority=High&status=Open"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - get request by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/request/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "request", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - update request details (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/request/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "request", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": \"High\",\n  \"category\": \"IT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - add comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/request/1/comment",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "request", "1", "comment"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Looking into this now.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - update status & assign (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/request/1/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "request", "1", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\",\n  \"assigned_to\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - close ticket (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/request/1/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "request", "1", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Closed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task11 - helpdesk dashboard (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/helpdesk/dashboard",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["helpdesk", "dashboard"]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
