@@ -77,6 +77,7 @@ Admin can:
 - Set and update employee salary structures
 - Generate and manage employee payslips
 - Maintain the company asset register, assign/retrieve assets, and view asset analytics
+- View, assign, and resolve employee help desk tickets, and monitor ticket analytics
 
 #### Manager
 
@@ -89,6 +90,7 @@ Manager can:
 - View the performance dashboard (cards + charts)
 - Submit leave requests and track their own status, same as an employee
 - View assets assigned to employees within their team
+- View help desk tickets raised by employees in their team
 
 #### Employee
 
@@ -101,6 +103,7 @@ Employee can:
 - View their own completed performance reviews and KPI feedback
 - View their own salary structure and payslips
 - View assets currently and previously assigned to them, including expected return dates
+- Raise help desk service requests and track their status, with comments
 
 Employee users cannot add, edit, or delete employee records.
 
@@ -221,6 +224,22 @@ The employee form includes:
 
 <img src="./screenshots/assets.png" alt="Payroll Analytics Dashboard" width="600" />
 
+### Help Desk Dashboard
+
+<img src="./screenshots/helpdesk-dashboard.png" alt="Help Desk Dashboard" width="600" />
+
+### Raise Service Request Form
+
+<img src="./screenshots/helpdesk-request-form.png" alt="Raise Service Request Form" width="600" />
+
+### Request Management Screen
+
+<img src="./screenshots/helpdesk-request-management.png" alt="Request Management Screen" width="600" />
+
+### Ticket Details with Comments
+
+<img src="./screenshots/helpdesk-ticket-details.png" alt="Ticket Details with Comments" width="600" />
+
 ### Mobile Responsive View
 
 <img src="./screenshots/mobile%20responsive%201.png" alt="Mobile Responsive 1" width="350" />
@@ -245,6 +264,7 @@ employee-management-system/
 │       │   ├── AssetForm.jsx
 │       │   ├── AssetTable.jsx
 │       │   ├── AttendanceReports.jsx
+│       │   ├── CommentSection.jsx
 │       │   ├── DashboardCards.jsx
 │       │   ├── DashboardReports.jsx
 │       │   ├── EmployeeDetails.jsx
@@ -252,6 +272,7 @@ employee-management-system/
 │       │   ├── EmployeeReports.jsx
 │       │   ├── EmployeeTable.jsx
 │       │   ├── ExportButtons.jsx
+│       │   ├── HelpDeskDashboard.jsx
 │       │   ├── LeaveForm.jsx
 │       │   ├── LeaveReports.jsx
 │       │   ├── LeaveTable.jsx
@@ -265,7 +286,11 @@ employee-management-system/
 │       │   ├── KPIForm.jsx
 │       │   ├── RatingChart.jsx
 │       │   ├── ReportCharts.jsx
-│       │   └── SalaryForm.jsx
+│       │   ├── RequestDetails.jsx
+│       │   ├── SalaryForm.jsx
+│       │   ├── ServiceRequestForm.jsx
+│       │   ├── ServiceRequestTable.jsx
+│       │   └── TicketCharts.jsx
 │       │
 │       ├── context/
 │       │   └── AuthContext.jsx
@@ -289,6 +314,7 @@ employee-management-system/
 │   │   ├── assetController.js
 │   │   ├── authController.js
 │   │   ├── employeeController.js
+│   │   ├── helpDeskController.js
 │   │   ├── leaveController.js
 │   │   ├── payrollController.js
 │   │   ├── performanceController.js
@@ -301,6 +327,7 @@ employee-management-system/
 │   │   ├── assetRoutes.js
 │   │   ├── authRoutes.js
 │   │   ├── employeeRoutes.js
+│   │   ├── helpDeskRoutes.js
 │   │   ├── leaveRoutes.js
 │   │   ├── payrollRoutes.js
 │   │   ├── performanceRoutes.js
@@ -308,6 +335,7 @@ employee-management-system/
 │   │
 │   ├── services/
 │   │   ├── assetService.js
+│   │   ├── helpDeskService.js
 │   │   ├── reportServices.js
 │   │   └── performanceService.js
 │   │
@@ -608,6 +636,100 @@ Asset Dashboard Updated
 
 ---
 
+## Employee Help Desk & Service Request Module
+
+A Help Desk module that lets employees raise support requests for HR, IT,
+Payroll, or Administration issues, lets admins/support staff assign and
+resolve tickets, and provides a dashboard for monitoring ticket status and
+resolution metrics.
+
+### Database Schema
+
+**`service_requests`**
+
+| Column      | Type                                                      | Notes                                   |
+| ----------- | --------------------------------------------------------- | --------------------------------------- |
+| id          | INT, PK, auto-increment                                   |                                         |
+| employee_id | INT, FK → employees(id)                                   | cascade delete, the requester           |
+| category    | ENUM('HR','IT','Payroll','Administration')                | required                                |
+| subject     | VARCHAR(200)                                              | required                                |
+| description | TEXT                                                      | required                                |
+| priority    | ENUM('Low','Medium','High')                               | default `Medium`                        |
+| status      | ENUM('Open','Assigned','In Progress','Resolved','Closed') | default `Open`                          |
+| assigned_to | VARCHAR(150)                                              | optional, name of the support person    |
+| created_at  | TIMESTAMP                                                 | default current timestamp               |
+| updated_at  | TIMESTAMP                                                 | auto-updated on every change            |
+| resolved_at | TIMESTAMP                                                 | set when status becomes Resolved/Closed |
+
+**`request_comments`**
+
+| Column       | Type                           | Notes                          |
+| ------------ | ------------------------------ | ------------------------------ |
+| id           | INT, PK, auto-increment        |                                |
+| request_id   | INT, FK → service_requests(id) | cascade delete                 |
+| user_id      | INT, FK → users(id)            | cascade delete, comment author |
+| comment      | TEXT                           | required                       |
+| commented_on | TIMESTAMP                      | default current timestamp      |
+
+### API Documentation
+
+All endpoints below require `Authorization: Bearer <token>`.
+
+| Method | Endpoint                        | Access                                        | Description                                                                        |
+| ------ | ------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------- |
+| POST   | `/helpdesk/request`             | Any logged-in user (raises a ticket for self) | Create a new service request                                                       |
+| GET    | `/helpdesk/requests`            | Employee (own), Manager (team), Admin (all)   | List requests; admin can filter by `category`, `priority`, `status`, `employee_id` |
+| GET    | `/helpdesk/request/:id`         | Employee (own), Manager (team), Admin (all)   | Get a single request with its comment thread                                       |
+| PUT    | `/helpdesk/request/:id`         | Admin                                         | Update ticket details (category, subject, description, priority)                   |
+| POST   | `/helpdesk/request/:id/comment` | Employee (own), Manager (team), Admin (all)   | Add a comment to a request                                                         |
+| PUT    | `/helpdesk/request/:id/status`  | Admin                                         | Update status and/or assignee                                                      |
+| GET    | `/helpdesk/dashboard`           | Admin                                         | KPI cards + chart data                                                             |
+
+### Business Rules Enforced
+
+- Subject and description are mandatory on ticket creation.
+- Priority must be `Low`, `Medium`, or `High`; category must be one of `HR`,
+  `IT`, `Payroll`, `Administration`.
+- Closed tickets cannot be edited (blocked on both `PUT /helpdesk/request/:id`
+  and `PUT /helpdesk/request/:id/status`).
+- A duplicate open request (same employee, same subject, status not
+  `Resolved`/`Closed`) is rejected with a friendly error.
+- `resolved_at` is stamped automatically the moment a ticket's status moves
+  to `Resolved` or `Closed`, and `updated_at` refreshes on every change —
+  this timestamp powers the "Average Resolution Time" dashboard metric.
+- Any authenticated user with a linked employee record can raise a request
+  for themselves (not just role `employee`), since managers and admins are
+  employees too — but only Admin/Support can view all tickets, assign them,
+  and change status.
+
+### Frontend Components
+
+- `ServiceRequestForm.jsx` — raise a new ticket (employee view)
+- `ServiceRequestTable.jsx` — searchable/filterable ticket list
+- `RequestDetails.jsx` — ticket detail view with admin status/assign controls
+- `CommentSection.jsx` — comment thread + add-comment form
+- `HelpDeskDashboard.jsx` — KPI cards (Total/Open/In Progress/Resolved/Closed/Avg. Resolution)
+- `TicketCharts.jsx` — category/priority/monthly-trend charts (reuses the
+  existing `RatingChart` component)
+
+### Ticket Workflow
+
+```text
+Employee Raises Request (status: Open)
+     ↓
+Admin Reviews & Assigns (status: Assigned)
+     ↓
+Support Works the Ticket (status: In Progress)
+     ↓
+Issue Fixed (status: Resolved, resolved_at stamped)
+     ↓
+Admin Closes Ticket (status: Closed, no further edits)
+     ↓
+Help Desk Dashboard Updated
+```
+
+---
+
 ## Setup Instructions
 
 1. **Clone the repository**
@@ -625,8 +747,9 @@ Asset Dashboard Updated
    ```
 
    `database.sql` creates every table used by this project (employees, users,
-   leave requests, performance reviews & KPIs, payroll, and assets) and
-   inserts demo data. It's safe to re-run the whole file.
+   leave requests, performance reviews & KPIs, payroll, assets, and help desk
+   service requests) and inserts demo data. It's safe to re-run the whole
+   file.
 
 3. **Configure environment variables**
 
