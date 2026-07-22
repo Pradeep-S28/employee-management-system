@@ -310,3 +310,80 @@ VALUES
 
 SELECT * FROM assets;
 SELECT * FROM asset_assignments;
+
+-- Task 11: Employee Help Desk & Service Request Module
+
+USE employee_management;
+
+CREATE TABLE IF NOT EXISTS service_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  category ENUM('HR', 'IT', 'Payroll', 'Administration') NOT NULL,
+  subject VARCHAR(200) NOT NULL,
+  description TEXT NOT NULL,
+  priority ENUM('Low', 'Medium', 'High') NOT NULL DEFAULT 'Medium',
+  status ENUM('Open', 'Assigned', 'In Progress', 'Resolved', 'Closed')
+    NOT NULL DEFAULT 'Open',
+  assigned_to VARCHAR(150) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP NULL,
+
+  CONSTRAINT fk_request_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS request_comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  request_id INT NOT NULL,
+  user_id INT NOT NULL,
+  comment TEXT NOT NULL,
+  commented_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_comment_request
+  FOREIGN KEY (request_id)
+  REFERENCES service_requests(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT fk_comment_user
+  FOREIGN KEY (user_id)
+  REFERENCES users(id)
+  ON DELETE CASCADE
+);
+
+-- demo data
+INSERT INTO service_requests
+(employee_id, category, subject, description, priority, status, assigned_to)
+VALUES
+(5, 'IT', 'Laptop running very slow', 'My laptop takes more than 10 minutes to boot up and applications freeze frequently.', 'High', 'In Progress', 'admin'),
+(2, 'HR', 'Address proof letter needed', 'I need an address proof letter from HR for a rental agreement.', 'Low', 'Resolved', 'admin'),
+(5, 'Payroll', 'Incorrect HRA in last payslip', 'The HRA amount in my June payslip looks lower than usual, please check.', 'Medium', 'Open', NULL),
+(2, 'Administration', 'Parking access card not working', 'My parking access card stopped working since yesterday.', 'Medium', 'Assigned', 'admin');
+
+UPDATE service_requests SET resolved_at = '2024-06-05 11:30:00'
+WHERE subject = 'Address proof letter needed';
+
+-- Comments are attached to whichever admin user exists in this database,
+-- so demo data stays valid regardless of the admin's user id.
+INSERT INTO request_comments (request_id, user_id, comment)
+SELECT sr.id, u.id, 'Assigned to IT support, will check remotely today.'
+FROM service_requests sr, users u
+WHERE sr.subject = 'Laptop running very slow' AND u.role = 'admin'
+LIMIT 1;
+
+INSERT INTO request_comments (request_id, user_id, comment)
+SELECT sr.id, u.id, 'Ran diagnostics, disk cleanup scheduled for tomorrow.'
+FROM service_requests sr, users u
+WHERE sr.subject = 'Laptop running very slow' AND u.role = 'admin'
+LIMIT 1;
+
+INSERT INTO request_comments (request_id, user_id, comment)
+SELECT sr.id, u.id, 'Letter has been generated and sent to your email.'
+FROM service_requests sr, users u
+WHERE sr.subject = 'Address proof letter needed' AND u.role = 'admin'
+LIMIT 1;
+
+SELECT * FROM service_requests;
+SELECT * FROM request_comments;
