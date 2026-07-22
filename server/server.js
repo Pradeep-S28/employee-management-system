@@ -10,6 +10,7 @@ const performanceRoutes = require("./routes/performanceRoutes");
 const payrollRoutes = require("./routes/payrollRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const assetRoutes = require("./routes/assetRoutes");
+const helpDeskRoutes = require("./routes/helpDeskRoutes");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/performance", performanceRoutes);
 app.use("/payroll", payrollRoutes);
 app.use("/reports", reportRoutes);
 app.use("/assets", assetRoutes);
+app.use("/helpdesk", helpDeskRoutes);
 
 const PORT = process.env.PORT || 5000;
 
