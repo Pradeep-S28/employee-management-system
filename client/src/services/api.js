@@ -240,3 +240,54 @@ export const getAssetAssignments = (token) => {
 export const getAssetDashboard = (token) => {
   return axios.get(`${ASSET_API_URL}/dashboard`, getAuthHeader(token));
 };
+
+// task 11 help desk & service requests
+
+const HELPDESK_API_URL = "http://localhost:5001/helpdesk";
+
+export const createServiceRequest = (requestData, token) => {
+  return axios.post(
+    `${HELPDESK_API_URL}/request`,
+    requestData,
+    getAuthHeader(token),
+  );
+};
+
+export const getServiceRequests = (token, params = {}) => {
+  return axios.get(`${HELPDESK_API_URL}/requests`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const getServiceRequestById = (id, token) => {
+  return axios.get(`${HELPDESK_API_URL}/request/${id}`, getAuthHeader(token));
+};
+
+export const updateServiceRequest = (id, requestData, token) => {
+  return axios.put(
+    `${HELPDESK_API_URL}/request/${id}`,
+    requestData,
+    getAuthHeader(token),
+  );
+};
+
+export const addRequestComment = (id, comment, token) => {
+  return axios.post(
+    `${HELPDESK_API_URL}/request/${id}/comment`,
+    { comment },
+    getAuthHeader(token),
+  );
+};
+
+export const updateRequestStatus = (id, statusData, token) => {
+  return axios.put(
+    `${HELPDESK_API_URL}/request/${id}/status`,
+    statusData,
+    getAuthHeader(token),
+  );
+};
+
+export const getHelpDeskDashboard = (token) => {
+  return axios.get(`${HELPDESK_API_URL}/dashboard`, getAuthHeader(token));
+};
