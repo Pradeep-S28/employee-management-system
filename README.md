@@ -226,19 +226,7 @@ The employee form includes:
 
 ### Help Desk Dashboard
 
-<img src="./screenshots/helpdesk-dashboard.png" alt="Help Desk Dashboard" width="600" />
-
-### Raise Service Request Form
-
-<img src="./screenshots/helpdesk-request-form.png" alt="Raise Service Request Form" width="600" />
-
-### Request Management Screen
-
-<img src="./screenshots/helpdesk-request-management.png" alt="Request Management Screen" width="600" />
-
-### Ticket Details with Comments
-
-<img src="./screenshots/helpdesk-ticket-details.png" alt="Ticket Details with Comments" width="600" />
+<img src="./screenshots/help-desk.png" alt="Help Desk Dashboard" width="600" />
 
 ### Mobile Responsive View
 
