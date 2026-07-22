@@ -30,6 +30,12 @@ import AssetAssignment, {
 } from "../components/AssetAssignment";
 import AssetDashboard from "../components/AssetDashboard";
 
+// task 11 help desk & service requests
+import ServiceRequestForm from "../components/ServiceRequestForm";
+import ServiceRequestTable from "../components/ServiceRequestTable";
+import RequestDetails from "../components/RequestDetails";
+import HelpDeskDashboard from "../components/HelpDeskDashboard";
+
 import {
   getLeaveRequests,
   updateLeaveStatus,
@@ -44,6 +50,10 @@ import {
   returnAsset,
   getAssetAssignments,
   getAssetDashboard,
+  createServiceRequest,
+  getServiceRequests,
+  getServiceRequestById,
+  getHelpDeskDashboard,
 } from "../services/api";
 
 import DashboardCards from "../components/DashboardCards";
@@ -143,6 +153,23 @@ const Dashboard = () => {
 
   const [assetDashboard, setAssetDashboard] = useState(null);
   const [assetDashboardLoading, setAssetDashboardLoading] = useState(false);
+
+  // task 11 help desk & service requests
+  const [helpDeskRequests, setHelpDeskRequests] = useState([]);
+  const [helpDeskLoading, setHelpDeskLoading] = useState(false);
+  const [helpDeskError, setHelpDeskError] = useState("");
+  const [helpDeskMessage, setHelpDeskMessage] = useState("");
+
+  const [hdCategoryFilter, setHdCategoryFilter] = useState("");
+  const [hdPriorityFilter, setHdPriorityFilter] = useState("");
+  const [hdStatusFilter, setHdStatusFilter] = useState("");
+
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedRequestLoading, setSelectedRequestLoading] = useState(false);
+
+  const [helpDeskDashboard, setHelpDeskDashboard] = useState(null);
+  const [helpDeskDashboardLoading, setHelpDeskDashboardLoading] =
+    useState(false);
 
   const fetchEmployees = async () => {
     try {
@@ -520,6 +547,88 @@ const Dashboard = () => {
     return [...new Set(assets.map((asset) => asset.asset_category))];
   }, [assets]);
 
+  // task 11 help desk & service requests
+
+  const fetchHelpDeskRequests = async () => {
+    try {
+      setHelpDeskLoading(true);
+      setHelpDeskError("");
+
+      const params = {};
+      if (isAdmin && hdCategoryFilter) params.category = hdCategoryFilter;
+      if (isAdmin && hdPriorityFilter) params.priority = hdPriorityFilter;
+      if (isAdmin && hdStatusFilter) params.status = hdStatusFilter;
+
+      const response = await getServiceRequests(token, params);
+      setHelpDeskRequests(response.data);
+    } catch (error) {
+      setHelpDeskError(
+        error.response?.data?.message || "Unable to fetch service requests.",
+      );
+    } finally {
+      setHelpDeskLoading(false);
+    }
+  };
+
+  const fetchHelpDeskDashboard = async () => {
+    if (!isAdmin) return;
+
+    try {
+      setHelpDeskDashboardLoading(true);
+      const response = await getHelpDeskDashboard(token);
+      setHelpDeskDashboard(response.data);
+    } catch (error) {
+      setHelpDeskDashboard(null);
+    } finally {
+      setHelpDeskDashboardLoading(false);
+    }
+  };
+
+  const refreshHelpDeskSection = () => {
+    fetchHelpDeskRequests();
+    fetchHelpDeskDashboard();
+  };
+
+  const handleServiceRequestSubmit = async (requestData) => {
+    try {
+      setHelpDeskError("");
+      setHelpDeskMessage("");
+
+      await createServiceRequest(requestData, token);
+
+      setHelpDeskMessage("Service request submitted successfully.");
+      refreshHelpDeskSection();
+      return true;
+    } catch (error) {
+      setHelpDeskError(
+        error.response?.data?.message || "Failed to submit service request.",
+      );
+      return false;
+    }
+  };
+
+  const handleViewRequest = async (id) => {
+    try {
+      setSelectedRequestLoading(true);
+      setHelpDeskError("");
+
+      const response = await getServiceRequestById(id, token);
+      setSelectedRequest(response.data);
+    } catch (error) {
+      setHelpDeskError(
+        error.response?.data?.message || "Failed to fetch request details.",
+      );
+    } finally {
+      setSelectedRequestLoading(false);
+    }
+  };
+
+  const handleRequestChanged = () => {
+    handleViewRequest(selectedRequest.id);
+    fetchHelpDeskRequests();
+    fetchHelpDeskDashboard();
+  };
+
   const handleSubmit = async (employeeData) => {
     try {
       if (editingEmployee) {
@@ -622,6 +731,13 @@ const Dashboard = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetSearchText, assetCategoryFilter, assetStatusFilter, isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchHelpDeskRequests();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hdCategoryFilter, hdPriorityFilter, hdStatusFilter, isAdmin]);
 
   return (
     <div className="app-bg">
@@ -786,6 +902,23 @@ const Dashboard = () => {
                 }}
               >
                 Assets
+              </button>
+
+              <button
+                className={`btn ${
+                  activeSection === "helpdesk"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => {
+                  setActiveSection("helpdesk");
+                  setHelpDeskMessage("");
+                  setHelpDeskError("");
+                  setSelectedRequest(null);
+                  refreshHelpDeskSection();
+                }}
+              >
+                Help Desk
               </button>
             </div>
           </div>
@@ -1257,6 +1390,66 @@ const Dashboard = () => {
                 assignments={assetAssignments}
                 isAdmin={isAdmin}
                 onReturn={handleAssetReturn}
+              />
+            )}
+          </div>
+        )}
+
+        {activeSection === "helpdesk" && (
+          <div className="mb-4">
+            {helpDeskMessage && (
+              <div className="alert alert-success">{helpDeskMessage}</div>
+            )}
+
+            {helpDeskError && (
+              <div className="alert alert-danger">{helpDeskError}</div>
+            )}
+
+            {isAdmin && (
+              <HelpDeskDashboard
+                dashboard={helpDeskDashboard}
+                loading={helpDeskDashboardLoading}
+              />
+            )}
+
+            {!isAdmin && (
+              <ServiceRequestForm onSubmit={handleServiceRequestSubmit} />
+            )}
+
+            {selectedRequestLoading ? (
+              <div className="text-center my-4">Loading request details...</div>
+            ) : (
+              selectedRequest && (
+                <RequestDetails
+                  request={selectedRequest}
+                  isAdmin={isAdmin}
+                  token={token}
+                  onClose={() => setSelectedRequest(null)}
+                  onChanged={handleRequestChanged}
+                />
+              )
+            )}
+
+            <h5 className="mt-3 mb-3">
+              {isAdmin ? "All Service Requests" : "My Service Requests"}
+            </h5>
+
+            {helpDeskLoading ? (
+              <div className="text-center my-5">
+                <div className="spinner-border text-primary"></div>
+                <p className="mt-2">Loading service requests...</p>
+              </div>
+            ) : (
+              <ServiceRequestTable
+                requests={helpDeskRequests}
+                isAdmin={isAdmin}
+                onView={handleViewRequest}
+                categoryFilter={hdCategoryFilter}
+                setCategoryFilter={setHdCategoryFilter}
+                priorityFilter={hdPriorityFilter}
+                setPriorityFilter={setHdPriorityFilter}
+                statusFilter={hdStatusFilter}
+                setStatusFilter={setHdStatusFilter}
               />
             )}
           </div>
