@@ -291,3 +291,95 @@ export const updateRequestStatus = (id, statusData, token) => {
 export const getHelpDeskDashboard = (token) => {
   return axios.get(`${HELPDESK_API_URL}/dashboard`, getAuthHeader(token));
 };
+
+// task 12 recruitment & employee onboarding
+
+const RECRUITMENT_API_URL = "http://localhost:5001/recruitment";
+const ONBOARDING_API_URL = "http://localhost:5001/onboarding";
+
+export const getJobs = (token, params = {}) => {
+  return axios.get(`${RECRUITMENT_API_URL}/jobs`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const addJob = (jobData, token) => {
+  return axios.post(
+    `${RECRUITMENT_API_URL}/jobs`,
+    jobData,
+    getAuthHeader(token),
+  );
+};
+
+export const updateJob = (id, jobData, token) => {
+  return axios.put(
+    `${RECRUITMENT_API_URL}/jobs/${id}`,
+    jobData,
+    getAuthHeader(token),
+  );
+};
+
+export const deleteJob = (id, token) => {
+  return axios.delete(
+    `${RECRUITMENT_API_URL}/jobs/${id}`,
+    getAuthHeader(token),
+  );
+};
+
+export const getCandidates = (token, params = {}) => {
+  return axios.get(`${RECRUITMENT_API_URL}/candidates`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const getCandidateById = (id, token) => {
+  return axios.get(
+    `${RECRUITMENT_API_URL}/candidates/${id}`,
+    getAuthHeader(token),
+  );
+};
+
+export const addCandidate = (candidateData, token) => {
+  return axios.post(
+    `${RECRUITMENT_API_URL}/candidates`,
+    candidateData,
+    getAuthHeader(token),
+  );
+};
+
+export const updateCandidate = (id, candidateData, token) => {
+  return axios.put(
+    `${RECRUITMENT_API_URL}/candidates/${id}`,
+    candidateData,
+    getAuthHeader(token),
+  );
+};
+
+export const getRecruitmentDashboard = (token) => {
+  return axios.get(`${RECRUITMENT_API_URL}/dashboard`, getAuthHeader(token));
+};
+
+export const getOnboardingTasks = (token, params = {}) => {
+  return axios.get(`${ONBOARDING_API_URL}/tasks`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const addOnboardingTask = (taskData, token) => {
+  return axios.post(
+    `${ONBOARDING_API_URL}/tasks`,
+    taskData,
+    getAuthHeader(token),
+  );
+};
+
+export const updateOnboardingTask = (id, taskData, token) => {
+  return axios.put(
+    `${ONBOARDING_API_URL}/tasks/${id}`,
+    taskData,
+    getAuthHeader(token),
+  );
+};

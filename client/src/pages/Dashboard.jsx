@@ -36,6 +36,15 @@ import ServiceRequestTable from "../components/ServiceRequestTable";
 import RequestDetails from "../components/RequestDetails";
 import HelpDeskDashboard from "../components/HelpDeskDashboard";
 
+// task 12 recruitment & employee onboarding
+import JobOpeningForm from "../components/JobOpeningForm";
+import JobTable from "../components/JobTable";
+import CandidateTable from "../components/CandidateTable";
+import CandidateDetails from "../components/CandidateDetails";
+import OnboardingTaskForm from "../components/OnboardingTaskForm";
+import OnboardingTaskTable from "../components/OnboardingTaskTable";
+import RecruitmentDashboard from "../components/RecruitmentDashboard";
+
 import {
   getLeaveRequests,
   updateLeaveStatus,
@@ -54,6 +63,18 @@ import {
   getServiceRequests,
   getServiceRequestById,
   getHelpDeskDashboard,
+  getJobs,
+  addJob,
+  updateJob,
+  deleteJob,
+  getCandidates,
+  getCandidateById,
+  addCandidate,
+  updateCandidate,
+  getRecruitmentDashboard,
+  getOnboardingTasks,
+  addOnboardingTask,
+  updateOnboardingTask,
 } from "../services/api";
 
 import DashboardCards from "../components/DashboardCards";
@@ -170,6 +191,35 @@ const Dashboard = () => {
   const [helpDeskDashboard, setHelpDeskDashboard] = useState(null);
   const [helpDeskDashboardLoading, setHelpDeskDashboardLoading] =
     useState(false);
+
+  // task 12 recruitment & employee onboarding
+  const [jobs, setJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobError, setJobError] = useState("");
+  const [jobMessage, setJobMessage] = useState("");
+  const [editingJob, setEditingJob] = useState(null);
+  const [showJobForm, setShowJobForm] = useState(false);
+  const [jobSearchText, setJobSearchText] = useState("");
+  const [jobStatusFilter, setJobStatusFilter] = useState("");
+
+  const [candidates, setCandidates] = useState([]);
+  const [candidatesLoading, setCandidatesLoading] = useState(false);
+  const [candidateError, setCandidateError] = useState("");
+  const [candidateMessage, setCandidateMessage] = useState("");
+  const [showCandidateForm, setShowCandidateForm] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [candidateSearchText, setCandidateSearchText] = useState("");
+  const [candidateStatusFilter, setCandidateStatusFilter] = useState("");
+  const [candidateJobFilter, setCandidateJobFilter] = useState("");
+
+  const [recruitmentDashboard, setRecruitmentDashboard] = useState(null);
+  const [recruitmentDashboardLoading, setRecruitmentDashboardLoading] =
+    useState(false);
+
+  const [onboardingTasks, setOnboardingTasks] = useState([]);
+  const [onboardingTasksLoading, setOnboardingTasksLoading] = useState(false);
+  const [onboardingError, setOnboardingError] = useState("");
+  const [onboardingMessage, setOnboardingMessage] = useState("");
 
   const fetchEmployees = async () => {
     try {
@@ -629,6 +679,218 @@ const Dashboard = () => {
     fetchHelpDeskDashboard();
   };
 
+  // task 12 recruitment & employee onboarding
+
+  const fetchJobs = async () => {
+    try {
+      setJobsLoading(true);
+      setJobError("");
+
+      const params = {};
+      if (jobSearchText) params.search = jobSearchText;
+      if (jobStatusFilter) params.status = jobStatusFilter;
+
+      const response = await getJobs(token, params);
+      setJobs(response.data);
+    } catch (error) {
+      setJobError(
+        error.response?.data?.message || "Unable to fetch job openings.",
+      );
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
+  const fetchCandidates = async () => {
+    try {
+      setCandidatesLoading(true);
+      setCandidateError("");
+
+      const params = {};
+      if (candidateSearchText) params.search = candidateSearchText;
+      if (candidateStatusFilter) params.status = candidateStatusFilter;
+      if (candidateJobFilter) params.job_id = candidateJobFilter;
+
+      const response = await getCandidates(token, params);
+      setCandidates(response.data);
+    } catch (error) {
+      setCandidateError(
+        error.response?.data?.message || "Unable to fetch candidates.",
+      );
+    } finally {
+      setCandidatesLoading(false);
+    }
+  };
+
+  const fetchRecruitmentDashboard = async () => {
+    if (!isAdmin) return;
+
+    try {
+      setRecruitmentDashboardLoading(true);
+      const response = await getRecruitmentDashboard(token);
+      setRecruitmentDashboard(response.data);
+    } catch (error) {
+      setRecruitmentDashboard(null);
+    } finally {
+      setRecruitmentDashboardLoading(false);
+    }
+  };
+
+  const refreshRecruitmentSection = () => {
+    fetchJobs();
+    fetchCandidates();
+    fetchRecruitmentDashboard();
+  };
+
+  const handleJobSubmit = async (jobData) => {
+    try {
+      setJobError("");
+      setJobMessage("");
+
+      if (editingJob) {
+        await updateJob(editingJob.id, jobData, token);
+        setJobMessage("Job opening updated successfully.");
+        setEditingJob(null);
+      } else {
+        await addJob(jobData, token);
+        setJobMessage("Job opening added successfully.");
+      }
+
+      setShowJobForm(false);
+      refreshRecruitmentSection();
+    } catch (error) {
+      setJobError(
+        error.response?.data?.message || "Failed to save job opening.",
+      );
+    }
+  };
+
+  const handleJobDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this job opening?",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      setJobError("");
+      await deleteJob(id, token);
+      setJobMessage("Job opening deleted successfully.");
+      refreshRecruitmentSection();
+    } catch (error) {
+      setJobError(
+        error.response?.data?.message || "Failed to delete job opening.",
+      );
+    }
+  };
+
+  const handleAddCandidate = async (candidateData) => {
+    try {
+      setCandidateError("");
+      setCandidateMessage("");
+
+      await addCandidate(candidateData, token);
+
+      setCandidateMessage("Candidate application added successfully.");
+      setShowCandidateForm(false);
+      refreshRecruitmentSection();
+      return true;
+    } catch (error) {
+      setCandidateError(
+        error.response?.data?.message || "Failed to add candidate.",
+      );
+      return false;
+    }
+  };
+
+  const handleViewCandidate = async (id) => {
+    try {
+      setCandidateError("");
+      const response = await getCandidateById(id, token);
+      setSelectedCandidate(response.data);
+      setShowCandidateForm(false);
+    } catch (error) {
+      setCandidateError(
+        error.response?.data?.message || "Failed to fetch candidate details.",
+      );
+    }
+  };
+
+  const handleUpdateCandidateStatus = async (id, candidateData) => {
+    try {
+      setCandidateError("");
+      setCandidateMessage("");
+
+      await updateCandidate(id, candidateData, token);
+
+      setCandidateMessage(
+        candidateData.application_status === "Hired"
+          ? "Candidate hired and converted into an employee record."
+          : "Candidate updated successfully.",
+      );
+
+      await handleViewCandidate(id);
+      fetchCandidates();
+      fetchRecruitmentDashboard();
+      fetchEmployees();
+    } catch (error) {
+      setCandidateError(
+        error.response?.data?.message || "Failed to update candidate.",
+      );
+    }
+  };
+
+  // task 12 onboarding tasks
+
+  const fetchOnboardingTasks = async () => {
+    try {
+      setOnboardingTasksLoading(true);
+      setOnboardingError("");
+
+      const response = await getOnboardingTasks(token);
+      setOnboardingTasks(response.data);
+    } catch (error) {
+      setOnboardingError(
+        error.response?.data?.message || "Unable to fetch onboarding tasks.",
+      );
+    } finally {
+      setOnboardingTasksLoading(false);
+    }
+  };
+
+  const handleAssignTask = async (taskData) => {
+    try {
+      setOnboardingError("");
+      setOnboardingMessage("");
+
+      await addOnboardingTask(taskData, token);
+
+      setOnboardingMessage("Onboarding task assigned successfully.");
+      fetchOnboardingTasks();
+      fetchRecruitmentDashboard();
+      return true;
+    } catch (error) {
+      setOnboardingError(
+        error.response?.data?.message || "Failed to assign onboarding task.",
+      );
+      return false;
+    }
+  };
+
+  const handleCompleteTask = async (id) => {
+    try {
+      setOnboardingError("");
+      await updateOnboardingTask(id, { status: "Completed" }, token);
+      setOnboardingMessage("Task marked as completed.");
+      fetchOnboardingTasks();
+      fetchRecruitmentDashboard();
+    } catch (error) {
+      setOnboardingError(
+        error.response?.data?.message || "Failed to update task status.",
+      );
+    }
+  };
+
   const handleSubmit = async (employeeData) => {
     try {
       if (editingEmployee) {
@@ -738,6 +1000,20 @@ const Dashboard = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hdCategoryFilter, hdPriorityFilter, hdStatusFilter, isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchJobs();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobSearchText, jobStatusFilter, isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchCandidates();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidateSearchText, candidateStatusFilter, candidateJobFilter, isAdmin]);
 
   return (
     <div className="app-bg">
@@ -919,6 +1195,43 @@ const Dashboard = () => {
                 }}
               >
                 Help Desk
+              </button>
+
+              {isAdmin && (
+                <button
+                  className={`btn ${
+                    activeSection === "recruitment"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => {
+                    setActiveSection("recruitment");
+                    setJobMessage("");
+                    setJobError("");
+                    setCandidateMessage("");
+                    setCandidateError("");
+                    setSelectedCandidate(null);
+                    refreshRecruitmentSection();
+                  }}
+                >
+                  Recruitment
+                </button>
+              )}
+
+              <button
+                className={`btn ${
+                  activeSection === "onboarding"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => {
+                  setActiveSection("onboarding");
+                  setOnboardingMessage("");
+                  setOnboardingError("");
+                  fetchOnboardingTasks();
+                }}
+              >
+                Onboarding
               </button>
             </div>
           </div>
@@ -1450,6 +1763,156 @@ const Dashboard = () => {
                 setPriorityFilter={setHdPriorityFilter}
                 statusFilter={hdStatusFilter}
                 setStatusFilter={setHdStatusFilter}
+              />
+            )}
+          </div>
+        )}
+
+        {activeSection === "recruitment" && isAdmin && (
+          <div className="mb-4">
+            {jobMessage && (
+              <div className="alert alert-success">{jobMessage}</div>
+            )}
+            {jobError && <div className="alert alert-danger">{jobError}</div>}
+            {candidateMessage && (
+              <div className="alert alert-success">{candidateMessage}</div>
+            )}
+            {candidateError && (
+              <div className="alert alert-danger">{candidateError}</div>
+            )}
+
+            <RecruitmentDashboard
+              dashboard={recruitmentDashboard}
+              loading={recruitmentDashboardLoading}
+            />
+
+            <h5 className="mb-3">Job Openings</h5>
+
+            <div className="mb-3">
+              <button
+                className="btn btn-success"
+                onClick={() => {
+                  setShowJobForm(true);
+                  setEditingJob(null);
+                }}
+              >
+                Add Job Opening
+              </button>
+            </div>
+
+            {showJobForm && (
+              <JobOpeningForm
+                onSubmit={handleJobSubmit}
+                editingJob={editingJob}
+                onCancel={() => {
+                  setShowJobForm(false);
+                  setEditingJob(null);
+                }}
+              />
+            )}
+
+            {jobsLoading ? (
+              <div className="text-center my-4">Loading job openings...</div>
+            ) : (
+              <JobTable
+                jobs={jobs}
+                onEdit={(job) => {
+                  setEditingJob(job);
+                  setShowJobForm(true);
+                }}
+                onDelete={handleJobDelete}
+                searchText={jobSearchText}
+                setSearchText={setJobSearchText}
+                statusFilter={jobStatusFilter}
+                setStatusFilter={setJobStatusFilter}
+              />
+            )}
+
+            <h5 className="mt-4 mb-3">Candidate Applications</h5>
+
+            <div className="mb-3">
+              <button
+                className="btn btn-success"
+                onClick={() => {
+                  setShowCandidateForm(true);
+                  setSelectedCandidate(null);
+                }}
+              >
+                Add Candidate
+              </button>
+            </div>
+
+            {showCandidateForm && (
+              <CandidateDetails
+                jobs={jobs}
+                onAddCandidate={handleAddCandidate}
+                onClose={() => setShowCandidateForm(false)}
+              />
+            )}
+
+            {selectedCandidate && (
+              <CandidateDetails
+                candidate={selectedCandidate}
+                jobs={jobs}
+                onUpdateCandidate={handleUpdateCandidateStatus}
+                onClose={() => setSelectedCandidate(null)}
+              />
+            )}
+
+            {candidatesLoading ? (
+              <div className="text-center my-4">Loading candidates...</div>
+            ) : (
+              <CandidateTable
+                candidates={candidates}
+                jobs={jobs}
+                onView={handleViewCandidate}
+                searchText={candidateSearchText}
+                setSearchText={setCandidateSearchText}
+                statusFilter={candidateStatusFilter}
+                setStatusFilter={setCandidateStatusFilter}
+                jobFilter={candidateJobFilter}
+                setJobFilter={setCandidateJobFilter}
+              />
+            )}
+          </div>
+        )}
+
+        {activeSection === "onboarding" && (
+          <div className="mb-4">
+            {onboardingMessage && (
+              <div className="alert alert-success">{onboardingMessage}</div>
+            )}
+            {onboardingError && (
+              <div className="alert alert-danger">{onboardingError}</div>
+            )}
+
+            {isAdmin && (
+              <OnboardingTaskForm
+                employees={employees}
+                onSubmit={handleAssignTask}
+              />
+            )}
+
+            {!isAdmin && (
+              <div className="alert alert-info">
+                Below are your assigned onboarding tasks. Mark them as completed
+                once done.
+              </div>
+            )}
+
+            <h5 className="mb-3">
+              {isAdmin ? "All Onboarding Tasks" : "My Onboarding Tasks"}
+            </h5>
+
+            {onboardingTasksLoading ? (
+              <div className="text-center my-4">
+                Loading onboarding tasks...
+              </div>
+            ) : (
+              <OnboardingTaskTable
+                tasks={onboardingTasks}
+                isAdmin={isAdmin}
+                onComplete={handleCompleteTask}
               />
             )}
           </div>
