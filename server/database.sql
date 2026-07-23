@@ -387,3 +387,88 @@ LIMIT 1;
 
 SELECT * FROM service_requests;
 SELECT * FROM request_comments;
+
+-- Task 12: Recruitment & Employee Onboarding Module
+
+USE employee_management;
+
+CREATE TABLE IF NOT EXISTS job_openings (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  job_title VARCHAR(150) NOT NULL,
+  department VARCHAR(100) NOT NULL,
+  location VARCHAR(100) NOT NULL,
+  employment_type ENUM('Full-Time', 'Part-Time', 'Contract', 'Internship')
+    NOT NULL DEFAULT 'Full-Time',
+  number_of_openings INT NOT NULL DEFAULT 1,
+  status ENUM('Open', 'Closed') NOT NULL DEFAULT 'Open',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT chk_number_of_openings CHECK (number_of_openings > 0)
+);
+
+CREATE TABLE IF NOT EXISTS candidates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  phone_number VARCHAR(20) NOT NULL,
+  job_id INT NOT NULL,
+  resume_path VARCHAR(255) NULL,
+  application_status ENUM('Applied', 'Shortlisted', 'Interviewed', 'Selected', 'Rejected', 'Hired')
+    NOT NULL DEFAULT 'Applied',
+  applied_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  employee_id INT NULL,
+  hired_at TIMESTAMP NULL,
+
+  CONSTRAINT fk_candidate_job
+  FOREIGN KEY (job_id)
+  REFERENCES job_openings(id)
+  ON DELETE RESTRICT,
+
+  CONSTRAINT fk_candidate_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS onboarding_tasks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  task_name VARCHAR(200) NOT NULL,
+  assigned_by VARCHAR(150) NOT NULL,
+  due_date DATE NOT NULL,
+  status ENUM('Pending', 'Completed') NOT NULL DEFAULT 'Pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_onboarding_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  -- Prevents assigning the exact same onboarding task twice to one employee
+  CONSTRAINT unique_employee_task UNIQUE (employee_id, task_name)
+);
+
+-- demo data
+INSERT INTO job_openings
+(job_title, department, location, employment_type, number_of_openings, status)
+VALUES
+('Backend Developer', 'Engineering', 'Bengaluru', 'Full-Time', 2, 'Open'),
+('HR Coordinator', 'HR', 'Chennai', 'Full-Time', 1, 'Open'),
+('Marketing Intern', 'Marketing', 'Remote', 'Internship', 1, 'Closed');
+
+INSERT INTO candidates
+(full_name, email, phone_number, job_id, resume_path, application_status)
+VALUES
+('Arjun Nair', 'arjun.nair@example.com', '9876543210', 1, 'https://example.com/resumes/arjun.pdf', 'Shortlisted'),
+('Divya Menon', 'divya.menon@example.com', '9876500000', 2, 'https://example.com/resumes/divya.pdf', 'Applied'),
+('Karthik Raja', 'karthik.raja@example.com', '9876511111', 1, 'https://example.com/resumes/karthik.pdf', 'Interviewed');
+
+INSERT INTO onboarding_tasks
+(employee_id, task_name, assigned_by, due_date, status)
+VALUES
+(5, 'Complete HR documentation', 'admin', '2026-07-25', 'Pending'),
+(5, 'IT setup - laptop & email', 'admin', '2026-07-20', 'Completed');
+
+SELECT * FROM job_openings;
+SELECT * FROM candidates;
+SELECT * FROM onboarding_tasks;
