@@ -1064,6 +1064,524 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Task 12 - Recruitment & Employee Onboarding",
+      "item": [
+        {
+          "name": "task12 - admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - create job opening",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/jobs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "jobs"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_title\": \"QA Engineer\",\n  \"department\": \"Engineering\",\n  \"location\": \"Chennai\",\n  \"employment_type\": \"Full-Time\",\n  \"number_of_openings\": 2,\n  \"status\": \"Open\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - get job openings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/jobs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "jobs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - filter job openings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/jobs?status=Open&department=Engineering",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "jobs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - update job opening",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/jobs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "jobs", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Closed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - delete job opening",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/jobs/3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "jobs", "3"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - create candidate application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/candidates",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "candidates"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Meera Pillai\",\n  \"email\": \"meera.pillai@example.com\",\n  \"phone_number\": \"9876522222\",\n  \"job_id\": 1,\n  \"resume_path\": \"https://example.com/resumes/meera.pdf\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - get candidates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/candidates",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "candidates"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - filter candidates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/candidates?status=Shortlisted&job_id=1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "candidates"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - get candidate by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/candidates/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "candidates", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - update candidate status (shortlist)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/candidates/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "candidates", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"application_status\": \"Shortlisted\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - mark candidate as hired (auto-creates employee)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/candidates/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "candidates", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"application_status\": \"Hired\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - recruitment dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/recruitment/dashboard",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["recruitment", "dashboard"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - assign onboarding task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/onboarding/tasks",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["onboarding", "tasks"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": 5,\n  \"task_name\": \"Set up payroll bank details\",\n  \"assigned_by\": \"admin\",\n  \"due_date\": \"2026-08-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - get onboarding tasks (admin: all, employee: own)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/onboarding/tasks",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["onboarding", "tasks"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - filter onboarding tasks by employee (admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/onboarding/tasks?employee_id=5&status=Pending",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["onboarding", "tasks"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - employee login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"employee\",\n  \"password\": \"employee123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task12 - mark my onboarding task completed",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/onboarding/tasks/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["onboarding", "tasks", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
