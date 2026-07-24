@@ -2,7 +2,7 @@
 
 A full-stack Employee Management System built using **React.js, Node.js, Express.js, MySQL, JWT Authentication, and Role-Based Access Control (RBAC)**.
 
-This project allows users to securely log in and manage employee records, leave requests, performance appraisals, payroll, and company assets, with access scoped by role.
+This project allows users to securely log in and manage employee records, leave requests, performance appraisals, payroll, company assets, help desk tickets, and recruitment & onboarding, with access scoped by role.
 
 ---
 
@@ -78,6 +78,9 @@ Admin can:
 - Generate and manage employee payslips
 - Maintain the company asset register, assign/retrieve assets, and view asset analytics
 - View, assign, and resolve employee help desk tickets, and monitor ticket analytics
+- Manage job openings, review candidate applications, update candidate status,
+  and hire candidates (auto-creating their employee record)
+- Assign and track employee onboarding tasks, and view recruitment analytics
 
 #### Manager
 
@@ -91,6 +94,7 @@ Manager can:
 - Submit leave requests and track their own status, same as an employee
 - View assets assigned to employees within their team
 - View help desk tickets raised by employees in their team
+- View and complete their own onboarding tasks (managers are employees too)
 
 #### Employee
 
@@ -104,6 +108,7 @@ Employee can:
 - View their own salary structure and payslips
 - View assets currently and previously assigned to them, including expected return dates
 - Raise help desk service requests and track their status, with comments
+- View their assigned onboarding tasks and mark them as completed
 
 Employee users cannot add, edit, or delete employee records.
 
@@ -228,6 +233,14 @@ The employee form includes:
 
 <img src="./screenshots/help-desk.png" alt="Help Desk Dashboard" width="600" />
 
+### Recruitment Dashboard
+
+<img src="./screenshots/recruitment-dashboard.png" alt="Recruitment Dashboard" width="600" />
+
+### Onboarding Tasks
+
+<img src="./screenshots/onboarding-tasks.png" alt="Onboarding Tasks" width="600" />
+
 ### Mobile Responsive View
 
 <img src="./screenshots/mobile%20responsive%201.png" alt="Mobile Responsive 1" width="350" />
@@ -252,6 +265,8 @@ employee-management-system/
 │       │   ├── AssetForm.jsx
 │       │   ├── AssetTable.jsx
 │       │   ├── AttendanceReports.jsx
+│       │   ├── CandidateDetails.jsx
+│       │   ├── CandidateTable.jsx
 │       │   ├── CommentSection.jsx
 │       │   ├── DashboardCards.jsx
 │       │   ├── DashboardReports.jsx
@@ -261,9 +276,13 @@ employee-management-system/
 │       │   ├── EmployeeTable.jsx
 │       │   ├── ExportButtons.jsx
 │       │   ├── HelpDeskDashboard.jsx
+│       │   ├── JobOpeningForm.jsx
+│       │   ├── JobTable.jsx
 │       │   ├── LeaveForm.jsx
 │       │   ├── LeaveReports.jsx
 │       │   ├── LeaveTable.jsx
+│       │   ├── OnboardingTaskForm.jsx
+│       │   ├── OnboardingTaskTable.jsx
 │       │   ├── PayrollCharts.jsx
 │       │   ├── PayrollReports.jsx
 │       │   ├── PayslipGenerator.jsx
@@ -273,6 +292,8 @@ employee-management-system/
 │       │   ├── PerformanceDashboard.jsx
 │       │   ├── KPIForm.jsx
 │       │   ├── RatingChart.jsx
+│       │   ├── RecruitmentCharts.jsx
+│       │   ├── RecruitmentDashboard.jsx
 │       │   ├── ReportCharts.jsx
 │       │   ├── RequestDetails.jsx
 │       │   ├── SalaryForm.jsx
@@ -306,6 +327,7 @@ employee-management-system/
 │   │   ├── leaveController.js
 │   │   ├── payrollController.js
 │   │   ├── performanceController.js
+│   │   ├── recruitmentController.js
 │   │   └── reportController.js
 │   │
 │   ├── middleware/
@@ -319,12 +341,14 @@ employee-management-system/
 │   │   ├── leaveRoutes.js
 │   │   ├── payrollRoutes.js
 │   │   ├── performanceRoutes.js
+│   │   ├── recruitmentRoutes.js
 │   │   └── reportRoutes.js
 │   │
 │   ├── services/
 │   │   ├── assetService.js
 │   │   ├── helpDeskService.js
 │   │   ├── reportServices.js
+│   │   ├── recruitmentService.js
 │   │   └── performanceService.js
 │   │
 │   ├── database.sql
@@ -718,6 +742,129 @@ Help Desk Dashboard Updated
 
 ---
 
+## Recruitment & Employee Onboarding Module
+
+A Recruitment module that lets admins manage job openings, review candidate
+applications, move candidates through the hiring pipeline, and — once a
+candidate is marked **Hired** — automatically converts them into an employee
+record in the existing Employee Management module. Also includes an
+Onboarding module for assigning and tracking new-hire tasks.
+
+### Database Schema
+
+**`job_openings`**
+
+| Column             | Type                                                  | Notes                     |
+| ------------------ | ----------------------------------------------------- | ------------------------- |
+| id                 | INT, PK, auto-increment                               |                           |
+| job_title          | VARCHAR(150)                                          | required                  |
+| department         | VARCHAR(100)                                          | required                  |
+| location           | VARCHAR(100)                                          | required                  |
+| employment_type    | ENUM('Full-Time','Part-Time','Contract','Internship') | default `Full-Time`       |
+| number_of_openings | INT                                                   | default `1`, must be > 0  |
+| status             | ENUM('Open','Closed')                                 | default `Open`            |
+| created_at         | TIMESTAMP                                             | default current timestamp |
+
+**`candidates`**
+
+| Column             | Type                                                                      | Notes                                       |
+| ------------------ | ------------------------------------------------------------------------- | ------------------------------------------- |
+| id                 | INT, PK, auto-increment                                                   |                                             |
+| full_name          | VARCHAR(150)                                                              | required                                    |
+| email              | VARCHAR(150)                                                              | required, **unique**                        |
+| phone_number       | VARCHAR(20)                                                               | required                                    |
+| job_id             | INT, FK → job_openings(id)                                                | restrict delete, the applied position       |
+| resume_path        | VARCHAR(255)                                                              | optional resume path/URL                    |
+| application_status | ENUM('Applied','Shortlisted','Interviewed','Selected','Rejected','Hired') | default `Applied`                           |
+| applied_date       | TIMESTAMP                                                                 | default current timestamp                   |
+| employee_id        | INT, FK → employees(id)                                                   | set once the candidate is hired             |
+| hired_at           | TIMESTAMP                                                                 | stamped when hired; powers the hiring chart |
+
+**`onboarding_tasks`**
+
+| Column      | Type                        | Notes                                  |
+| ----------- | --------------------------- | -------------------------------------- |
+| id          | INT, PK, auto-increment     |                                        |
+| employee_id | INT, FK → employees(id)     | cascade delete                         |
+| task_name   | VARCHAR(200)                | required                               |
+| assigned_by | VARCHAR(150)                | required                               |
+| due_date    | DATE                        | required                               |
+| status      | ENUM('Pending','Completed') | default `Pending`                      |
+| created_at  | TIMESTAMP                   | default current timestamp              |
+|             |                             | unique on (`employee_id`, `task_name`) |
+
+### API Documentation
+
+All endpoints below require `Authorization: Bearer <token>`.
+
+| Method | Endpoint                      | Access                                                                | Description                                                     |
+| ------ | ----------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------- |
+| GET    | `/recruitment/dashboard`      | Admin                                                                 | KPI cards + chart data                                          |
+| POST   | `/recruitment/jobs`           | Admin                                                                 | Create a job opening                                            |
+| GET    | `/recruitment/jobs`           | Admin                                                                 | List job openings; filter by `status`, `department`, `search`   |
+| PUT    | `/recruitment/jobs/:id`       | Admin                                                                 | Update a job opening                                            |
+| DELETE | `/recruitment/jobs/:id`       | Admin                                                                 | Delete a job opening (blocked if it has candidate applications) |
+| POST   | `/recruitment/candidates`     | Admin                                                                 | Register a new candidate application                            |
+| GET    | `/recruitment/candidates`     | Admin                                                                 | List candidates; filter by `status`, `job_id`, `search`         |
+| GET    | `/recruitment/candidates/:id` | Admin                                                                 | Get a single candidate's details                                |
+| PUT    | `/recruitment/candidates/:id` | Admin                                                                 | Update candidate details / application status                   |
+| POST   | `/onboarding/tasks`           | Admin                                                                 | Assign an onboarding task to an employee                        |
+| GET    | `/onboarding/tasks`           | Admin (all, optional `employee_id`/`status`), any employee (own only) | List onboarding tasks                                           |
+| PUT    | `/onboarding/tasks/:id`       | Admin (any field), employee (own task, status only)                   | Update / complete an onboarding task                            |
+
+### Business Rules Enforced
+
+- Candidate emails must be unique; duplicate applications are rejected with a
+  friendly error.
+- A job opening with `status = 'Closed'` cannot accept new candidate
+  applications (`POST /recruitment/candidates` is blocked).
+- Setting a candidate's `application_status` to `Hired` automatically creates
+  a new row in `employees` (full name, email, department and designation
+  from the job, joining date = today, status `Active`) and links it back via
+  `candidates.employee_id`. Re-submitting `Hired` on an already-hired
+  candidate does **not** create a second employee record.
+- A job opening cannot be deleted once candidates have applied to it
+  (enforced by the `job_id` foreign key).
+- The same onboarding task name cannot be assigned twice to the same
+  employee (unique constraint on `employee_id` + `task_name`).
+- Employees (including managers) can only view and complete their own
+  onboarding tasks; only admins can assign tasks or edit task details.
+
+### Frontend Components
+
+- `JobOpeningForm.jsx` — add/edit a job opening
+- `JobTable.jsx` — searchable/filterable job openings list
+- `CandidateTable.jsx` — searchable/filterable candidate list
+- `CandidateDetails.jsx` — add a new candidate application, and view/update
+  an existing candidate's status
+- `OnboardingTaskForm.jsx` — assign a new onboarding task (admin)
+- `OnboardingTaskTable.jsx` — task list with a "Mark Completed" action for
+  employees
+- `RecruitmentDashboard.jsx` — KPI cards (Job Openings/Candidates/Shortlisted/Hired/Pending Onboarding/Onboarding Completion %)
+- `RecruitmentCharts.jsx` — applications-by-department, candidate status
+  distribution, monthly hiring trend, and onboarding completion charts
+  (reuses the existing `RatingChart` component)
+
+### Recruitment & Onboarding Workflow
+
+```text
+Admin Posts Job Opening (status: Open)
+     ↓
+Candidate Applies (status: Applied)
+     ↓
+Admin Shortlists → Interviews → Selects (status updated at each stage)
+     ↓
+Admin Marks Candidate as Hired
+     ↓
+Employee Record Auto-Created & Linked to Candidate
+     ↓
+Admin Assigns Onboarding Tasks to the New Employee
+     ↓
+Employee Completes Tasks → Onboarding Dashboard Updated
+```
+
+---
+
 ## Setup Instructions
 
 1. **Clone the repository**
@@ -735,9 +882,9 @@ Help Desk Dashboard Updated
    ```
 
    `database.sql` creates every table used by this project (employees, users,
-   leave requests, performance reviews & KPIs, payroll, assets, and help desk
-   service requests) and inserts demo data. It's safe to re-run the whole
-   file.
+   leave requests, performance reviews & KPIs, payroll, assets, help desk
+   service requests, and recruitment/onboarding tables) and inserts demo
+   data. It's safe to re-run the whole file.
 
 3. **Configure environment variables**
 
