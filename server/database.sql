@@ -472,3 +472,148 @@ VALUES
 SELECT * FROM job_openings;
 SELECT * FROM candidates;
 SELECT * FROM onboarding_tasks;
+
+-- Task 13: Training & Learning Management Module
+
+USE employee_management;
+
+CREATE TABLE IF NOT EXISTS training_programs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  training_title VARCHAR(150) NOT NULL,
+  description TEXT NULL,
+  category VARCHAR(100) NOT NULL,
+  duration_hours INT NOT NULL,
+  trainer_name VARCHAR(150) NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  status ENUM('Upcoming', 'Ongoing', 'Completed') NOT NULL DEFAULT 'Upcoming',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT chk_training_duration CHECK (duration_hours > 0),
+  CONSTRAINT chk_training_dates CHECK (end_date > start_date)
+);
+
+CREATE TABLE IF NOT EXISTS employee_training (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  training_id INT NOT NULL,
+  progress_percentage INT NOT NULL DEFAULT 0,
+  completion_status ENUM('Not Started', 'In Progress', 'Completed')
+    NOT NULL DEFAULT 'Not Started',
+  completion_date DATE NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_training_assignment_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT fk_training_assignment_training
+  FOREIGN KEY (training_id)
+  REFERENCES training_programs(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT chk_training_progress CHECK (progress_percentage BETWEEN 0 AND 100),
+
+  -- Prevents assigning the same training program twice to one employee
+  CONSTRAINT unique_employee_training UNIQUE (employee_id, training_id)
+);
+
+CREATE TABLE IF NOT EXISTS assessments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  training_id INT NOT NULL,
+  employee_id INT NOT NULL,
+  score INT NOT NULL,
+  result ENUM('Pass', 'Fail') NOT NULL,
+  attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_assessment_training
+  FOREIGN KEY (training_id)
+  REFERENCES training_programs(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT fk_assessment_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT chk_assessment_score CHECK (score BETWEEN 0 AND 100)
+);
+
+CREATE TABLE IF NOT EXISTS certifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  training_id INT NOT NULL,
+  certificate_number VARCHAR(50) NOT NULL UNIQUE,
+  issued_date DATE NOT NULL,
+  expiry_date DATE NULL,
+
+  CONSTRAINT fk_certification_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES employees(id)
+  ON DELETE CASCADE,
+
+  CONSTRAINT fk_certification_training
+  FOREIGN KEY (training_id)
+  REFERENCES training_programs(id)
+  ON DELETE CASCADE,
+
+  -- A certificate is issued only once per employee per training program
+  CONSTRAINT unique_employee_certification UNIQUE (employee_id, training_id)
+);
+
+-- demo data
+INSERT INTO training_programs
+(training_title, description, category, duration_hours, trainer_name, start_date, end_date, status)
+VALUES
+('React Fundamentals', 'Core concepts of React including hooks and state management', 'Technical', 16, 'Anitha Rao', '2026-06-01', '2026-06-10', 'Completed'),
+('Effective Communication', 'Workplace communication and presentation skills', 'Soft Skills', 8, 'Suresh Babu', '2026-07-15', '2026-07-20', 'Ongoing'),
+('Cloud Fundamentals - AWS', 'Introduction to core AWS services', 'Technical', 20, 'Meera Pillai', '2026-08-05', '2026-08-15', 'Upcoming');
+
+-- Resolve demo employees dynamically instead of hardcoding IDs, since the
+-- employees table may have been modified (rows added/edited/deleted) while
+-- testing earlier tasks and the original seed IDs (1, 2, 5) may no longer
+-- point at the intended rows (or may not exist at all).
+SET @emp_a := COALESCE(
+  (SELECT id FROM employees WHERE email = 'asha@example.com' LIMIT 1),
+  (SELECT id FROM employees ORDER BY id LIMIT 1)
+);
+SET @emp_b := COALESCE(
+  (SELECT id FROM employees WHERE email = 'vikram@example.com' LIMIT 1),
+  (SELECT id FROM employees WHERE id <> @emp_a ORDER BY id LIMIT 1),
+  @emp_a
+);
+SET @emp_c := COALESCE(
+  (SELECT id FROM employees WHERE email = 'sneha@example.com' LIMIT 1),
+  (SELECT id FROM employees WHERE id NOT IN (@emp_a, @emp_b) ORDER BY id LIMIT 1),
+  @emp_a
+);
+
+-- Resolve the demo training programs just inserted above by title instead
+-- of assuming their auto-increment IDs.
+SET @trn_react := (SELECT id FROM training_programs WHERE training_title = 'React Fundamentals' ORDER BY id DESC LIMIT 1);
+SET @trn_comm := (SELECT id FROM training_programs WHERE training_title = 'Effective Communication' ORDER BY id DESC LIMIT 1);
+
+INSERT INTO employee_training
+(employee_id, training_id, progress_percentage, completion_status, completion_date)
+VALUES
+(@emp_a, @trn_react, 100, 'Completed', '2026-06-10'),
+(@emp_c, @trn_react, 100, 'Completed', '2026-06-10'),
+(@emp_b, @trn_comm, 40, 'In Progress', NULL),
+(@emp_c, @trn_comm, 0, 'Not Started', NULL);
+
+INSERT INTO assessments
+(training_id, employee_id, score, result, attempt_date)
+VALUES
+(@trn_react, @emp_a, 82, 'Pass', '2026-06-11 10:00:00'),
+(@trn_react, @emp_c, 35, 'Fail', '2026-06-11 10:30:00');
+
+INSERT INTO certifications
+(employee_id, training_id, certificate_number, issued_date)
+VALUES
+(@emp_a, @trn_react, CONCAT('CERT-TRN', @trn_react, '-EMP', @emp_a, '-0001'), '2026-06-12');
+
+SELECT * FROM training_programs;
+SELECT * FROM employee_training;
+SELECT * FROM assessments;
+SELECT * FROM certifications;
