@@ -45,6 +45,16 @@ import OnboardingTaskForm from "../components/OnboardingTaskForm";
 import OnboardingTaskTable from "../components/OnboardingTaskTable";
 import RecruitmentDashboard from "../components/RecruitmentDashboard";
 
+// task 13 training & learning management
+import TrainingProgramForm from "../components/TrainingProgramForm";
+import TrainingTable from "../components/TrainingTable";
+import EmployeeTraining, {
+  AssignTrainingForm,
+} from "../components/EmployeeTraining";
+import AssessmentForm from "../components/AssessmentForm";
+import CertificationView from "../components/CertificationView";
+import TrainingDashboard from "../components/TrainingDashboard";
+
 import {
   getLeaveRequests,
   updateLeaveStatus,
@@ -75,6 +85,18 @@ import {
   getOnboardingTasks,
   addOnboardingTask,
   updateOnboardingTask,
+  getTrainingPrograms,
+  addTrainingProgram,
+  updateTrainingProgram,
+  deleteTrainingProgram,
+  assignTraining,
+  getTrainingAssignments,
+  updateTrainingProgress,
+  recordAssessment,
+  getAssessmentsByEmployee,
+  generateCertification,
+  getCertifications,
+  getTrainingDashboard,
 } from "../services/api";
 
 import DashboardCards from "../components/DashboardCards";
@@ -220,6 +242,31 @@ const Dashboard = () => {
   const [onboardingTasksLoading, setOnboardingTasksLoading] = useState(false);
   const [onboardingError, setOnboardingError] = useState("");
   const [onboardingMessage, setOnboardingMessage] = useState("");
+
+  // task 13 training & learning management
+  const [trainingPrograms, setTrainingPrograms] = useState([]);
+  const [trainingProgramsLoading, setTrainingProgramsLoading] = useState(false);
+  const [trainingError, setTrainingError] = useState("");
+  const [trainingMessage, setTrainingMessage] = useState("");
+  const [editingProgram, setEditingProgram] = useState(null);
+  const [showTrainingForm, setShowTrainingForm] = useState(false);
+  const [trainingSearchText, setTrainingSearchText] = useState("");
+  const [trainingStatusFilter, setTrainingStatusFilter] = useState("");
+  const [programToAssign, setProgramToAssign] = useState(null);
+
+  const [trainingAssignments, setTrainingAssignments] = useState([]);
+  const [trainingAssignmentsLoading, setTrainingAssignmentsLoading] =
+    useState(false);
+
+  const [trainingDashboard, setTrainingDashboard] = useState(null);
+  const [trainingDashboardLoading, setTrainingDashboardLoading] =
+    useState(false);
+
+  const [assessments, setAssessments] = useState([]);
+  const [assessmentsLoading, setAssessmentsLoading] = useState(false);
+
+  const [certifications, setCertifications] = useState([]);
+  const [certificationsLoading, setCertificationsLoading] = useState(false);
 
   const fetchEmployees = async () => {
     try {
@@ -891,6 +938,202 @@ const Dashboard = () => {
     }
   };
 
+  // task 13 training & learning management
+
+  const fetchTrainingPrograms = async () => {
+    try {
+      setTrainingProgramsLoading(true);
+      setTrainingError("");
+
+      const params = {};
+      if (trainingSearchText) params.search = trainingSearchText;
+      if (trainingStatusFilter) params.status = trainingStatusFilter;
+
+      const response = await getTrainingPrograms(token, params);
+      setTrainingPrograms(response.data);
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Unable to fetch training programs.",
+      );
+    } finally {
+      setTrainingProgramsLoading(false);
+    }
+  };
+
+  const fetchTrainingAssignments = async () => {
+    try {
+      setTrainingAssignmentsLoading(true);
+      const response = await getTrainingAssignments(token);
+      setTrainingAssignments(response.data);
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message ||
+          "Unable to fetch training assignments.",
+      );
+    } finally {
+      setTrainingAssignmentsLoading(false);
+    }
+  };
+
+  const fetchTrainingDashboard = async () => {
+    if (!isReviewer) return;
+
+    try {
+      setTrainingDashboardLoading(true);
+      const response = await getTrainingDashboard(token);
+      setTrainingDashboard(response.data);
+    } catch (error) {
+      setTrainingDashboard(null);
+    } finally {
+      setTrainingDashboardLoading(false);
+    }
+  };
+
+  const fetchCertifications = async () => {
+    try {
+      setCertificationsLoading(true);
+      const response = await getCertifications(token);
+      setCertifications(response.data);
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Unable to fetch certifications.",
+      );
+    } finally {
+      setCertificationsLoading(false);
+    }
+  };
+
+  const refreshTrainingSection = () => {
+    fetchTrainingPrograms();
+    fetchTrainingAssignments();
+    fetchTrainingDashboard();
+    fetchCertifications();
+  };
+
+  const handleTrainingProgramSubmit = async (programData) => {
+    try {
+      setTrainingError("");
+      setTrainingMessage("");
+
+      if (editingProgram) {
+        await updateTrainingProgram(editingProgram.id, programData, token);
+        setTrainingMessage("Training program updated successfully.");
+        setEditingProgram(null);
+      } else {
+        await addTrainingProgram(programData, token);
+        setTrainingMessage("Training program added successfully.");
+      }
+
+      setShowTrainingForm(false);
+      refreshTrainingSection();
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Failed to save training program.",
+      );
+    }
+  };
+
+  const handleTrainingProgramDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this training program?",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      setTrainingError("");
+      await deleteTrainingProgram(id, token);
+      setTrainingMessage("Training program deleted successfully.");
+      refreshTrainingSection();
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Failed to delete training program.",
+      );
+    }
+  };
+
+  const handleAssignTraining = async (assignmentData) => {
+    try {
+      setTrainingError("");
+      setTrainingMessage("");
+
+      await assignTraining(assignmentData, token);
+
+      setTrainingMessage("Training assigned successfully.");
+      setProgramToAssign(null);
+      refreshTrainingSection();
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Failed to assign training.",
+      );
+    }
+  };
+
+  const handleTrainingProgressUpdate = async (assignmentId, progress) => {
+    try {
+      setTrainingError("");
+      await updateTrainingProgress(
+        assignmentId,
+        { progress_percentage: progress },
+        token,
+      );
+      setTrainingMessage("Training progress updated successfully.");
+      fetchTrainingAssignments();
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Failed to update training progress.",
+      );
+    }
+  };
+
+  const handleAssessmentSubmit = async (assessmentData) => {
+    try {
+      setTrainingError("");
+      setTrainingMessage("");
+
+      await recordAssessment(assessmentData, token);
+
+      setTrainingMessage("Assessment result recorded successfully.");
+      handleAssessmentEmployeeChange(assessmentData.employee_id);
+      fetchTrainingDashboard();
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Failed to record assessment result.",
+      );
+    }
+  };
+
+  const handleAssessmentEmployeeChange = async (employeeId) => {
+    try {
+      setAssessmentsLoading(true);
+      const response = await getAssessmentsByEmployee(employeeId, token);
+      setAssessments(response.data);
+    } catch (error) {
+      setAssessments([]);
+    } finally {
+      setAssessmentsLoading(false);
+    }
+  };
+
+  const handleGenerateCertification = async (certificationData) => {
+    try {
+      setTrainingError("");
+      setTrainingMessage("");
+
+      await generateCertification(certificationData, token);
+
+      setTrainingMessage("Certification generated successfully.");
+      fetchCertifications();
+      fetchTrainingDashboard();
+      return true;
+    } catch (error) {
+      setTrainingError(
+        error.response?.data?.message || "Failed to generate certification.",
+      );
+      return false;
+    }
+  };
+
   const handleSubmit = async (employeeData) => {
     try {
       if (editingEmployee) {
@@ -1014,6 +1257,11 @@ const Dashboard = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidateSearchText, candidateStatusFilter, candidateJobFilter, isAdmin]);
+
+  useEffect(() => {
+    fetchTrainingPrograms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trainingSearchText, trainingStatusFilter]);
 
   return (
     <div className="app-bg">
@@ -1232,6 +1480,23 @@ const Dashboard = () => {
                 }}
               >
                 Onboarding
+              </button>
+
+              <button
+                className={`btn ${
+                  activeSection === "training"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => {
+                  setActiveSection("training");
+                  setTrainingMessage("");
+                  setTrainingError("");
+                  setProgramToAssign(null);
+                  refreshTrainingSection();
+                }}
+              >
+                Training
               </button>
             </div>
           </div>
@@ -1915,6 +2180,126 @@ const Dashboard = () => {
                 onComplete={handleCompleteTask}
               />
             )}
+          </div>
+        )}
+
+        {activeSection === "training" && (
+          <div className="mb-4">
+            {trainingMessage && (
+              <div className="alert alert-success">{trainingMessage}</div>
+            )}
+            {trainingError && (
+              <div className="alert alert-danger">{trainingError}</div>
+            )}
+
+            {isReviewer && (
+              <TrainingDashboard
+                dashboard={trainingDashboard}
+                loading={trainingDashboardLoading}
+              />
+            )}
+
+            <h5 className="mb-3">Training Programs</h5>
+
+            {isAdmin && (
+              <div className="mb-3">
+                <button
+                  className="btn btn-success"
+                  onClick={() => {
+                    setShowTrainingForm(true);
+                    setEditingProgram(null);
+                  }}
+                >
+                  Add Training Program
+                </button>
+              </div>
+            )}
+
+            {showTrainingForm && (
+              <TrainingProgramForm
+                onSubmit={handleTrainingProgramSubmit}
+                editingProgram={editingProgram}
+                onCancel={() => {
+                  setShowTrainingForm(false);
+                  setEditingProgram(null);
+                }}
+              />
+            )}
+
+            {programToAssign && (
+              <AssignTrainingForm
+                employees={employees}
+                programs={[programToAssign]}
+                onSubmit={handleAssignTraining}
+                onCancel={() => setProgramToAssign(null)}
+              />
+            )}
+
+            {trainingProgramsLoading ? (
+              <div className="text-center my-4">
+                Loading training programs...
+              </div>
+            ) : (
+              <TrainingTable
+                programs={trainingPrograms}
+                isAdmin={isAdmin}
+                onEdit={(program) => {
+                  setEditingProgram(program);
+                  setShowTrainingForm(true);
+                }}
+                onDelete={handleTrainingProgramDelete}
+                onAssign={(program) => {
+                  setProgramToAssign(program);
+                  setShowTrainingForm(false);
+                }}
+                searchText={trainingSearchText}
+                setSearchText={setTrainingSearchText}
+                statusFilter={trainingStatusFilter}
+                setStatusFilter={setTrainingStatusFilter}
+              />
+            )}
+
+            <h5 className="mt-4 mb-3">
+              {isAdmin ? "All Training Assignments" : "My Training Progress"}
+            </h5>
+
+            {trainingAssignmentsLoading ? (
+              <div className="text-center my-4">
+                Loading training assignments...
+              </div>
+            ) : (
+              <EmployeeTraining
+                assignments={trainingAssignments}
+                isAdmin={isAdmin}
+                isEmployee={!isReviewer}
+                onProgressUpdate={handleTrainingProgressUpdate}
+              />
+            )}
+
+            {isAdmin && (
+              <>
+                <h5 className="mt-4 mb-3">Assessments</h5>
+
+                <AssessmentForm
+                  employees={employees}
+                  programs={trainingPrograms}
+                  onSubmit={handleAssessmentSubmit}
+                  assessments={assessments}
+                  assessmentsLoading={assessmentsLoading}
+                  onEmployeeChange={handleAssessmentEmployeeChange}
+                />
+              </>
+            )}
+
+            <h5 className="mt-4 mb-3">Certifications</h5>
+
+            <CertificationView
+              isAdmin={isAdmin}
+              employees={employees}
+              programs={trainingPrograms}
+              certifications={certifications}
+              onGenerate={handleGenerateCertification}
+            />
           </div>
         )}
       </div>

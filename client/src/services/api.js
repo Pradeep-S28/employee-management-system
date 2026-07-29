@@ -383,3 +383,88 @@ export const updateOnboardingTask = (id, taskData, token) => {
     getAuthHeader(token),
   );
 };
+
+// task 13 training & learning management
+
+const TRAINING_API_URL = "http://localhost:5001/training";
+
+export const getTrainingPrograms = (token, params = {}) => {
+  return axios.get(`${TRAINING_API_URL}/programs`, {
+    ...getAuthHeader(token),
+    params,
+  });
+};
+
+export const addTrainingProgram = (programData, token) => {
+  return axios.post(
+    `${TRAINING_API_URL}/programs`,
+    programData,
+    getAuthHeader(token),
+  );
+};
+
+export const updateTrainingProgram = (id, programData, token) => {
+  return axios.put(
+    `${TRAINING_API_URL}/programs/${id}`,
+    programData,
+    getAuthHeader(token),
+  );
+};
+
+export const deleteTrainingProgram = (id, token) => {
+  return axios.delete(
+    `${TRAINING_API_URL}/programs/${id}`,
+    getAuthHeader(token),
+  );
+};
+
+export const assignTraining = (assignmentData, token) => {
+  return axios.post(
+    `${TRAINING_API_URL}/assign`,
+    assignmentData,
+    getAuthHeader(token),
+  );
+};
+
+export const getTrainingAssignments = (token) => {
+  return axios.get(`${TRAINING_API_URL}/assignments`, getAuthHeader(token));
+};
+
+export const updateTrainingProgress = (id, progressData, token) => {
+  return axios.put(
+    `${TRAINING_API_URL}/progress/${id}`,
+    progressData,
+    getAuthHeader(token),
+  );
+};
+
+export const recordAssessment = (assessmentData, token) => {
+  return axios.post(
+    `${TRAINING_API_URL}/assessment`,
+    assessmentData,
+    getAuthHeader(token),
+  );
+};
+
+export const getAssessmentsByEmployee = (employeeId, token) => {
+  return axios.get(
+    `${TRAINING_API_URL}/assessment/${employeeId}`,
+    getAuthHeader(token),
+  );
+};
+
+export const generateCertification = (certificationData, token) => {
+  return axios.post(
+    `${TRAINING_API_URL}/certification`,
+    certificationData,
+    getAuthHeader(token),
+  );
+};
+
+export const getCertifications = (token) => {
+  return axios.get(`${TRAINING_API_URL}/certifications`, getAuthHeader(token));
+};
+
+export const getTrainingDashboard = (token) => {
+  return axios.get(`${TRAINING_API_URL}/dashboard`, getAuthHeader(token));
+};
