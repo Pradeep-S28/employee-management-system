@@ -2,7 +2,7 @@
 
 A full-stack Employee Management System built using **React.js, Node.js, Express.js, MySQL, JWT Authentication, and Role-Based Access Control (RBAC)**.
 
-This project allows users to securely log in and manage employee records, leave requests, performance appraisals, payroll, company assets, help desk tickets, and recruitment & onboarding, with access scoped by role.
+This project allows users to securely log in and manage employee records, leave requests, performance appraisals, payroll, company assets, help desk tickets, recruitment & onboarding, and training & learning, with access scoped by role.
 
 ---
 
@@ -299,7 +299,14 @@ employee-management-system/
 │       │   ├── SalaryForm.jsx
 │       │   ├── ServiceRequestForm.jsx
 │       │   ├── ServiceRequestTable.jsx
-│       │   └── TicketCharts.jsx
+│       │   ├── TicketCharts.jsx
+│       │   ├── TrainingProgramForm.jsx
+│       │   ├── TrainingTable.jsx
+│       │   ├── EmployeeTraining.jsx
+│       │   ├── AssessmentForm.jsx
+│       │   ├── CertificationView.jsx
+│       │   ├── TrainingDashboard.jsx
+│       │   └── TrainingCharts.jsx
 │       │
 │       ├── context/
 │       │   └── AuthContext.jsx
@@ -328,7 +335,8 @@ employee-management-system/
 │   │   ├── payrollController.js
 │   │   ├── performanceController.js
 │   │   ├── recruitmentController.js
-│   │   └── reportController.js
+│   │   ├── reportController.js
+│   │   └── trainingController.js
 │   │
 │   ├── middleware/
 │   │   └── authMiddleware.js
@@ -342,14 +350,16 @@ employee-management-system/
 │   │   ├── payrollRoutes.js
 │   │   ├── performanceRoutes.js
 │   │   ├── recruitmentRoutes.js
-│   │   └── reportRoutes.js
+│   │   ├── reportRoutes.js
+│   │   └── trainingRoutes.js
 │   │
 │   ├── services/
 │   │   ├── assetService.js
 │   │   ├── helpDeskService.js
 │   │   ├── reportServices.js
 │   │   ├── recruitmentService.js
-│   │   └── performanceService.js
+│   │   ├── performanceService.js
+│   │   └── trainingService.js
 │   │
 │   ├── database.sql
 │   ├── server.js
@@ -865,6 +875,141 @@ Employee Completes Tasks → Onboarding Dashboard Updated
 
 ---
 
+## Training & Learning Management Module
+
+A Training & Learning Management module that lets admins create training
+programs, assign them to employees, track learning progress, record
+assessment results, and generate certifications once an employee passes.
+Managers can monitor training progress for employees in their own team.
+
+### Database Schema
+
+**`training_programs`**
+
+| Column         | Type                                   | Notes                          |
+| -------------- | -------------------------------------- | ------------------------------ |
+| id             | INT, PK, auto-increment                |                                |
+| training_title | VARCHAR(150)                           | required                       |
+| description    | TEXT                                   | optional                       |
+| category       | VARCHAR(100)                           | required                       |
+| duration_hours | INT                                    | required, must be > 0          |
+| trainer_name   | VARCHAR(150)                           | required                       |
+| start_date     | DATE                                   | required                       |
+| end_date       | DATE                                   | required, must be > start_date |
+| status         | ENUM('Upcoming','Ongoing','Completed') | default `Upcoming`             |
+| created_at     | TIMESTAMP                              | default current timestamp      |
+
+**`employee_training`**
+
+| Column              | Type                                          | Notes                                    |
+| ------------------- | --------------------------------------------- | ---------------------------------------- |
+| id                  | INT, PK, auto-increment                       |                                          |
+| employee_id         | INT, FK → employees(id)                       | cascade delete                           |
+| training_id         | INT, FK → training_programs(id)               | cascade delete                           |
+| progress_percentage | INT                                           | default `0`, must be between 0 and 100   |
+| completion_status   | ENUM('Not Started','In Progress','Completed') | default `Not Started`                    |
+| completion_date     | DATE                                          | set automatically at 100% progress       |
+| created_at          | TIMESTAMP                                     | default current timestamp                |
+|                     |                                               | unique on (`employee_id`, `training_id`) |
+
+**`assessments`**
+
+| Column       | Type                            | Notes                               |
+| ------------ | ------------------------------- | ----------------------------------- |
+| id           | INT, PK, auto-increment         |                                     |
+| training_id  | INT, FK → training_programs(id) | cascade delete                      |
+| employee_id  | INT, FK → employees(id)         | cascade delete                      |
+| score        | INT                             | required, must be between 0 and 100 |
+| result       | ENUM('Pass','Fail')             | computed from score (pass mark: 40) |
+| attempt_date | TIMESTAMP                       | default current timestamp           |
+
+**`certifications`**
+
+| Column             | Type                            | Notes                                    |
+| ------------------ | ------------------------------- | ---------------------------------------- |
+| id                 | INT, PK, auto-increment         |                                          |
+| employee_id        | INT, FK → employees(id)         | cascade delete                           |
+| training_id        | INT, FK → training_programs(id) | cascade delete                           |
+| certificate_number | VARCHAR(50)                     | required, **unique**                     |
+| issued_date        | DATE                            | required                                 |
+| expiry_date        | DATE                            | optional                                 |
+|                    |                                 | unique on (`employee_id`, `training_id`) |
+
+### API Documentation
+
+All endpoints below require `Authorization: Bearer <token>`.
+
+| Method | Endpoint                           | Access                                          | Description                                                                          |
+| ------ | ---------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| GET    | `/training/dashboard`              | Admin, Manager                                  | KPI cards + chart data                                                               |
+| POST   | `/training/programs`               | Admin                                           | Create a training program                                                            |
+| GET    | `/training/programs`               | Admin, Manager, Employee                        | List training programs; filter by `status`, `category`, `search`                     |
+| PUT    | `/training/programs/:id`           | Admin                                           | Update a training program                                                            |
+| DELETE | `/training/programs/:id`           | Admin                                           | Delete a training program (cascades to its assignments, assessments, certifications) |
+| POST   | `/training/assign`                 | Admin                                           | Assign a training program to an employee                                             |
+| GET    | `/training/assignments`            | Admin (all), Manager (own team), Employee (own) | List training assignments with progress                                              |
+| PUT    | `/training/progress/:id`           | Employee (own assignment), Admin                | Update progress percentage for an assignment                                         |
+| POST   | `/training/assessment`             | Admin                                           | Record an assessment score/result for an employee                                    |
+| GET    | `/training/assessment/:employeeId` | Admin, Manager (own team), Employee (own)       | List assessment attempts for an employee                                             |
+| POST   | `/training/certification`          | Admin                                           | Generate a certification (only if the latest assessment is a Pass)                   |
+| GET    | `/training/certifications`         | Admin (all), Manager (own team), Employee (own) | List certifications                                                                  |
+
+### Business Rules Enforced
+
+- A training program's `end_date` must be later than its `start_date`
+  (validated on both create and update).
+- `progress_percentage` must be between 0 and 100; reaching 100 automatically
+  sets `completion_status` to `Completed` and stamps `completion_date`, while
+  0 resets it to `Not Started` and anything in between is `In Progress`.
+- Assessment `score` must be between 0 and 100; the `result` (`Pass`/`Fail`)
+  is computed server-side using a pass mark of 40, not supplied by the client.
+- A certification can only be generated if the employee's latest assessment
+  attempt for that training program is a `Pass` — otherwise the request is
+  rejected with a friendly error.
+- An employee cannot be assigned the same training program twice (unique
+  constraint on `employee_id` + `training_id`), and only one certificate can
+  be issued per employee per training program.
+- Employees can only view and update their own training assignments,
+  assessments, and certifications; managers are scoped to employees in their
+  own team; only admins can create/manage programs, assign training, record
+  assessments, and generate certifications.
+
+### Frontend Components
+
+- `TrainingProgramForm.jsx` — add/edit a training program (admin)
+- `TrainingTable.jsx` — searchable/filterable training programs list with
+  Assign/Edit/Delete actions
+- `EmployeeTraining.jsx` — training assignments list with a progress bar,
+  plus an `AssignTrainingForm` for assigning training to an employee (admin)
+- `AssessmentForm.jsx` — record an assessment result and view an employee's
+  assessment history (admin)
+- `CertificationView.jsx` — generate a certification (admin) and view
+  certification details (admin sees all, employee sees own)
+- `TrainingDashboard.jsx` — KPI cards (Total Programs/Active Trainings/Completed Trainings/Employees Certified/Pending Assessments)
+- `TrainingCharts.jsx` — training completion by department, monthly
+  certification count, training category distribution, and employee progress
+  overview charts (reuses the existing `RatingChart` component)
+
+### Training Workflow
+
+```text
+Admin Creates Training Program (status: Upcoming)
+     ↓
+Admin Assigns Training to Employee
+     ↓
+Employee Updates Progress (0% → 100%)
+     ↓
+Progress Reaches 100% → Status: Completed
+     ↓
+Admin Records Assessment Result (Pass/Fail)
+     ↓
+If Pass → Admin Generates Certification
+     ↓
+Training Dashboard & Charts Updated
+```
+
+---
+
 ## Setup Instructions
 
 1. **Clone the repository**
@@ -883,8 +1028,9 @@ Employee Completes Tasks → Onboarding Dashboard Updated
 
    `database.sql` creates every table used by this project (employees, users,
    leave requests, performance reviews & KPIs, payroll, assets, help desk
-   service requests, and recruitment/onboarding tables) and inserts demo
-   data. It's safe to re-run the whole file.
+   service requests, recruitment/onboarding, and training & learning
+   management tables) and inserts demo data. It's safe to re-run the whole
+   file.
 
 3. **Configure environment variables**
 
