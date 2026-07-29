@@ -1582,6 +1582,416 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Task 13 - Training & Learning Management",
+      "item": [
+        {
+          "name": "task13 - admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - create training program",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/programs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "programs"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"training_title\": \"Data Analytics Bootcamp\",\n  \"description\": \"Hands-on training on data analysis fundamentals\",\n  \"category\": \"Technical\",\n  \"duration_hours\": 24,\n  \"trainer_name\": \"Kavya Menon\",\n  \"start_date\": \"2026-08-10\",\n  \"end_date\": \"2026-08-20\",\n  \"status\": \"Upcoming\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - get training programs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/programs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "programs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - filter training programs by status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/programs?status=Ongoing",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "programs"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Ongoing"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - update training program",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/programs/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "programs", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Ongoing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - delete training program",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/programs/3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "programs", "3"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - assign training to employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/assign",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "assign"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": 2,\n  \"training_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - get training assignments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/assignments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "assignments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - update training progress",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/progress/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "progress", "1"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"progress_percentage\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - record assessment result",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/assessment",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "assessment"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": 1,\n  \"training_id\": 1,\n  \"score\": 78\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - get assessment results by employee",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/assessment/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "assessment", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - generate certification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/certification",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "certification"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": 1,\n  \"training_id\": 1,\n  \"expiry_date\": \"2028-06-12\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - get certifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/certifications",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "certifications"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "task13 - get training dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5001/training/dashboard",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["training", "dashboard"]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
