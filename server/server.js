@@ -12,6 +12,7 @@ const reportRoutes = require("./routes/reportRoutes");
 const assetRoutes = require("./routes/assetRoutes");
 const helpDeskRoutes = require("./routes/helpDeskRoutes");
 const recruitmentRoutes = require("./routes/recruitmentRoutes");
+const trainingRoutes = require("./routes/trainingRoutes");
 
 const app = express();
 
@@ -33,6 +34,9 @@ app.use("/helpdesk", helpDeskRoutes);
 
 // task 12: recruitmentRoutes defines its own full paths (/recruitment/*, /onboarding/*)
 app.use(recruitmentRoutes);
+
+// task 13: trainingRoutes defines its own full paths (/training/*)
+app.use(trainingRoutes);
 
 const PORT = process.env.PORT || 5000;
 
